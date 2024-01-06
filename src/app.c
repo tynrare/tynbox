@@ -5,6 +5,7 @@
 #include "include/test_render_0.h"
 #include "include/test_networksim_0.h"
 #include "include/test_physics_0.h"
+#include "include/test_collisions_0.h"
 #include "include/tyncommons.h"
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +25,8 @@ AppState *AppInit(TynStage *stage) {
   //AppNewStage(state, TestShader0Init);
   //AppNewStage(state, TestRender0Init);
   //AppNewStage(state, TynmazeInit);
-  AppNewStage(state, TestPhysics0Init);
+  //AppNewStage(state, TestPhysics0Init);
+  AppNewStage(state, TestCollisions0Init);
   //AppNewStage(state, G231012_Init);
   //AppNewStage(state, TestNetworksim0Init);
 

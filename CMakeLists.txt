@@ -42,7 +42,7 @@ set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 set(SOURCE_FILES main.c "src/game_d231012.c"  "src/tynroar_rcmd.c" "src/app.c" "src/game_tynmaze.c")
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} "src/tyncommons.c" "src/test_shader_0.c" "src/test_networksim_0.c" "src/test_render_0.c" "src/tynstage_template.c" "src/test_physics_0.c" "src/shader_sdf2d.c")
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} "src/tyncommons.c" "src/test_shader_0.c" "src/test_networksim_0.c" "src/test_render_0.c" "src/tynstage_template.c" "src/test_physics_0.c" "src/shader_sdf2d.c" "src/test_collisions_0.c")
 
 #set(raylib_VERBOSE 1)
 target_link_libraries(${PROJECT_NAME} raylib box2d)
