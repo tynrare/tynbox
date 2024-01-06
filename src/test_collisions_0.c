@@ -1,6 +1,7 @@
 #include "include/test_collisions_0.h"
 #include "box2d/types.h";
 #include "box2d/aabb.h";
+#include "box2d/math.h";
 #include <stdlib.h>
 
 static void _dispose(TestCollisions0State* state);
@@ -78,8 +79,6 @@ void _draw(TestCollisions0State* state)
         my = state->testbox_posy + 1;
     }
 
-    
-
     // mouse follow box
     b2AABB mainbox = b2AABB_ConstructFromCenterSize(state->testbox_posx, state->testbox_posy, 32, 32);
     b2Vec2 box_pos = b2AABB_Center(mainbox);
@@ -94,17 +93,18 @@ void _draw(TestCollisions0State* state)
     const testboxes_origin_x = sw / 2 - 4 * 32 + 16;
     const testboxes_origin_y = sh / 2;
     for (int i = 0; i < 16; i++) {
-        b2AABB box = b2AABB_ConstructFromCenterSize(testboxes_origin_x + (i % 8) * 32 - 16, testboxes_origin_y + (i / 8) * 32 - 16, 32, 32);
+        b2AABB box = b2AABB_ConstructFromCenterSize(testboxes_origin_x + ((i*2) % 8) * 32 - 16, testboxes_origin_y + (i / 8) * 32 - 16, 32, 32);
         testboxes[i] = box;
     }
 
     b2AABB boarphased_boxes[16] = { 0 };
     int boarphased_boxes_count = 0;
+    const extend_margin = 1;
     for (int i = 0; i < 16; i++) {
         b2AABB box = testboxes[i];
 
         if (b2AABB_Overlaps(boardphase, box)) {
-            b2AABB extended_box1 = b2AABB_ExtendBySize(box, box_extents.x * 2, box_extents.y * 2);
+            b2AABB extended_box1 = b2AABB_ExtendBySize(box, box_extents.x * 2 - extend_margin * 2, box_extents.y * 2 - extend_margin * 2);
             boarphased_boxes[boarphased_boxes_count++] = extended_box1;
 
             drawb2AABBDebug(box, BLACK); // test box
@@ -137,8 +137,8 @@ void _draw(TestCollisions0State* state)
     }
 
     if (apply_movement) {
-        state->testbox_posx = raycast_closest.hit ? raycast_closest.point.x : mx;
-        state->testbox_posy = raycast_closest.hit ? raycast_closest.point.y : my;
+        state->testbox_posx = raycast_closest.hit ? raycast_closest.point.x + raycast_closest.normal.x * extend_margin: mx;
+        state->testbox_posy = raycast_closest.hit ? raycast_closest.point.y + raycast_closest.normal.y * extend_margin: my;
     }
 
     DrawText(TextFormat("%f fraction", raycast_closest.fraction), 16, 16, 12, BLACK);
