@@ -24,7 +24,7 @@ int main() {
     // SetConfigFlags(FLAG_MSAA_4X_HINT); // Set MSAA 4X hint before windows
     //  creation
 
-  InitWindow(screenWidth, screenHeight, "unbrumed cpp 230930");
+  InitWindow(screenWidth, screenHeight, "tynbox 240106");
 
   TynStage stage = {0};
   AppState *state = AppInit(&stage);
