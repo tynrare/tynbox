@@ -1,0 +1,3 @@
+[submodule "external/box2c"]
+	path = external/box2c
+	url = git@github.com:erincatto/box2c.git
