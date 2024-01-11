@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <raymath.h>
 #include <math.h>
+#include <stdio.h>
 
 void TestNetworksim0Dispose(TestNetworksim0State* state);
 STAGEFLAG TestNetworksim0Step(TestNetworksim0State* state, STAGEFLAG flags);
@@ -67,14 +68,18 @@ TestNetworksim0State* TestNetworksim0Init(TynStage* stage) {
 
     state->inputonce = false;
 
-    state->move.timestamp = GetTime();
-    state->move.speed = 50;
-    state->move.path = makePath(3);
-    writePathPoint(&state->move.path, (Vector2) { 50, 50 });
-    writePathPoint(&state->move.path, (Vector2) { 30, 30 });
-    writePathPoint(&state->move.path, (Vector2) { 50, 100 });
+    state->move1.timestamp = GetTime();
+    state->move1.speed = 50;
+    state->move1.path = makePath(5);
+    writePathPoint(&state->move1.path, (Vector2) { 50, 50 });
+    writePathPoint(&state->move1.path, (Vector2) { 30, 30 });
+    writePathPoint(&state->move1.path, (Vector2) { 50, 100 });
+    writePathPoint(&state->move1.path, (Vector2) { 0, 300 });
+    writePathPoint(&state->move1.path, (Vector2) { 100, 70 });
+    memcpy(&state->move2, &state->move1, sizeof(TestNetworksim0MoveAction));
 
     stage->state = state;
+    state->elapsed = 0;
     stage->frame =
         (TynFrame){ &TestNetworksim0Dispose, &TestNetworksim0Step, &TestNetworksim0Draw };
 
@@ -86,18 +91,20 @@ void TestNetworksim0Dispose(TestNetworksim0State* state)
     free(state);
 }
 
-float getMoveProgress(TestNetworksim0MoveAction* move) {
-    double now = GetTime();
-    double delta = now - move->timestamp;
-    float progress = delta * move->speed / move->path.total_length;
+float getMoveProgress(TestNetworksim0MoveAction* move1, double now) {
+    double delta = now - move1->timestamp;
+    float progress = delta * move1->speed / move1->path.total_length;
 
     return progress;
 }
 
 STAGEFLAG TestNetworksim0Step(TestNetworksim0State* state, STAGEFLAG flags)
 {
-    if (getMoveProgress(&state->move) >= 1) {
-        state->move.timestamp = GetTime();
+    if (getMoveProgress(&state->move1, GetTime()) >= 1) {
+        state->move1.timestamp = GetTime();
+    }
+    if (getMoveProgress(&state->move2, GetTime()) >= 1) {
+        state->move2.timestamp = GetTime();
     }
 
 
@@ -121,29 +128,49 @@ STAGEFLAG TestNetworksim0Step(TestNetworksim0State* state, STAGEFLAG flags)
     return flags;
 }
 
-void TestNetworksim0Draw(TestNetworksim0State* state)
-{
-    DrawText(TextFormat("Test network sim."),
-        10, 10, 10, BLACK);
+static void drawPath(TestNetworksim0MoveAction* move, Vector2 origin, double now) {
+    TestNetworksim0Path path = move->path;
 
-    TestNetworksim0Path path = state->move.path;
-
-    float progress = getMoveProgress(&state->move);
+    float progress = getMoveProgress(move, now);
     Vector2 pos = getPathPos(&path, progress);
 
     DrawText(TextFormat("Progress: %.2f", progress),
-        10, 22, 10, BLACK);
+        10 + origin.x, 22 + origin.y, 10, BLACK);
 
-    DrawCircle(pos.x, pos.y, 8, GREEN);
+    DrawCircle(pos.x + origin.x, pos.y + origin.y, 8, GREEN);
 
     for (int i = 0; i < path.points_count; i++) {
         Vector2 p = path.points[i];
 
         if (i > 0) {
             Vector2 p1 = path.points[i - 1];
-            DrawLine(p1.x, p1.y, p.x, p.y, BLUE);
+            DrawLine(p1.x + origin.x, p1.y + origin.y, p.x + origin.x, p.y + origin.y, BLUE);
         }
 
-        DrawCircle(p.x, p.y, 4, RED);
+        DrawCircle(p.x + origin.x, p.y + origin.y, 4, RED);
     }
+}
+
+void TestNetworksim0Draw(TestNetworksim0State* state)
+{
+    DrawText(TextFormat("Test network sim."),
+        10, 10, 10, BLACK);
+
+    // ref path
+    double now = GetTime();
+    drawPath(&state->move1, (Vector2) { 0, 0 }, now);
+
+    // "lagged" path
+    double tt = 0;
+    const double threshold = 300;
+    double _cthreshold = 1000 / threshold;
+
+    double d = modf(now * _cthreshold, &tt);
+    double _tnow = tt / _cthreshold;
+    Vector2 path2_origin = (Vector2){ 100, 0 };
+    drawPath(&state->move2, path2_origin, _tnow);
+
+    float progress2 = getMoveProgress(&state->move2, _tnow + (now - _tnow));
+    Vector2 pos2 = getPathPos(&state->move2.path, progress2);
+    DrawCircle(pos2.x + path2_origin.x, pos2.y + path2_origin.y, 4, BLUE);
 }

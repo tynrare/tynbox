@@ -1,7 +1,7 @@
 #include "include/test_collisions_0.h"
-#include "box2d/types.h";
-#include "box2d/aabb.h";
-#include "box2d/math.h";
+#include "box2d/types.h"
+#include "box2d/aabb.h"
+#include "box2d/math.h"
 #include <stdlib.h>
 
 static void _dispose(TestCollisions0State* state);
@@ -57,7 +57,6 @@ static void drawb2AABBDebug(b2AABB aabb, Color color) {
 }
 
 /**
-* 
 * @param {int*} iteration total iterations count
 * @param {b2Vec2} pos staring ray pos
 * @param {b2Vec2} target goal ray pos
@@ -213,7 +212,7 @@ void _draw(TestCollisions0State* state)
     int boarphased_boxes_count = 0;
 
     // Boxes size decreased a bit and collision tests shifts final positions a bit
-    const extend_margin = 1;
+    const int extend_margin = 1;
     for (int i = 0; i < 32; i++) {
         b2AABB box = testboxes[i];
 
@@ -229,7 +228,7 @@ void _draw(TestCollisions0State* state)
     }
 
     // a. Simple collision - put collider out of any bounds
-    b2Vec2 newpos = simpleAABBCollision(mainbox, testboxes, 32, 1);
+    b2Vec2 newpos = simpleAABBCollision(mainbox, testboxes, 32, extend_margin);
     state->testbox_posx = newpos.x;
     state->testbox_posy = newpos.y;
 

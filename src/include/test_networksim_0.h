@@ -22,7 +22,9 @@ typedef struct {
 
 typedef struct {
 	bool inputonce;
-	TestNetworksim0MoveAction move;
+	double elapsed;
+	TestNetworksim0MoveAction move1;
+	TestNetworksim0MoveAction move2;
 } TestNetworksim0State;
 
 TestNetworksim0State* TestNetworksim0Init(TynStage* stage);
