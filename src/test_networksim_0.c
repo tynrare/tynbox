@@ -38,7 +38,7 @@ Vector2 getPathPos(TestNetworksim0Path* path, float progress) {
     assert(("Path requires at least 2 points", path->points_count > 1));
 
     float len = 0;
-    float progress_len = max(0, progress * path->total_length);
+    float progress_len = fmax(0, progress * path->total_length);
 
     for (int i = 0; i < path->points_count - 1; i++) {
         float segment_len = path->segments_length[i];

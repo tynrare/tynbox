@@ -15,19 +15,17 @@ typedef enum {
 typedef enum {
 	CMDFLAG_DEFAULT = (1u << 0),
 	CMDFLAG_BROADCAST = (1u << 1),
-} CMDFLAF;
+} CMDFLAG;
 
 #define TYNFRAME \
 	void (*dispose)(void *); \
 	STAGEFLAG (*step)(void *, STAGEFLAG); \
 	void (*draw)(void *); \
-	char *(*cmdin)(void *, CMDFLAF *);                                                      \
-	char *(*cmdout)(void *); \
+	char *(*cmdin)(void *, CMDFLAG *);                                                      \
+	char *(*cmdout)(void *, char *); \
 
 typedef struct {
   TYNFRAME
-  //fStep AppStep;
-  //fDraw draw;
 } TynFrame;
 
 typedef struct TynStage {

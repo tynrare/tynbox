@@ -1,8 +1,9 @@
 #include "include/test_physics_0.h"
 #include "include/shader_sdf2d.h"
-#include "box2c/src/body.h"
-#include "box2c/src/shape.h"
-#include "box2c/src/world.h"
+#include "body.h"
+#include "shape.h"
+#include "world.h"
+#include "box2d/box2d.h"
 #include "raymath.h"
 
 static void _dispose(TestPhysics0State* state);

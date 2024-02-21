@@ -1,4 +1,5 @@
 #include "include/tynstage_template.h"
+#include <stddef.h>
 
 static void _dispose(TynstageTemplate0State* state);
 static STAGEFLAG _step(TynstageTemplate0State* state, STAGEFLAG flags);

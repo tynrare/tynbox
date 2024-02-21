@@ -61,7 +61,7 @@ STAGEFLAG Console_UpdateLogicFrame(ConsoleState *state, STAGEFLAG flags) {
   return flags;
 }
 
-char* Console_ConfirmCommand(ConsoleState* state, CMDFLAF *flags) {
+char* Console_ConfirmCommand(ConsoleState* state, STAGEFLAG *flags) {
   if (!state->ready)
     return NULL;
 

@@ -1,17 +1,17 @@
 #include "include/app.h"
 #include "include/game_231012.h"
 #include "include/game_tynmaze.h"
-#include "include/test_shader_0.h"
-#include "include/test_render_0.h"
 #include "include/test_networksim_0.h"
-#include "include/test_physics_0.h"
+#include "include/test_render_0.h"
+#include "include/test_shader_0.h"
+//#include "include/test_physics_0.h"
 #include "include/test_collisions_0.h"
 #include "include/tyncommons.h"
 #include <stdlib.h>
 #include <string.h>
 
 void AppDispose(AppState *state);
-char *cmd(AppState *state, char *command, STAGEFLAG *flag);
+static char *cmd(AppState *state, char *command, STAGEFLAG *flag);
 STAGEFLAG AppStep(AppState *state, STAGEFLAG flag);
 void AppDraw(AppState *state);
 
@@ -22,18 +22,18 @@ AppState *AppInit(TynStage *stage) {
   stage->frame = (TynFrame){&AppDispose, &AppStep, &AppDraw};
 
   AppNewStage(state, Console_Init);
-  //AppNewStage(state, TestShader0Init);
-  //AppNewStage(state, TestRender0Init);
-  //AppNewStage(state, TynmazeInit);
-  //AppNewStage(state, TestPhysics0Init);
-  //AppNewStage(state, TestCollisions0Init);
-  //AppNewStage(state, G231012_Init);
-  AppNewStage(state, TestNetworksim0Init);
+  // AppNewStage(state, TestShader0Init);
+  // AppNewStage(state, TestRender0Init);
+  AppNewStage(state, TynmazeInit);
+  // AppNewStage(state, TestPhysics0Init);
+  // AppNewStage(state, TestCollisions0Init);
+  // AppNewStage(state, G231012_Init);
+  //AppNewStage(state, TestNetworksim0Init);
 
   return state;
 }
 
-int AppNewStage(AppState* state, void *(initfn)(TynStage *)) {
+int AppNewStage(AppState *state, void *(initfn)(TynStage *)) {
   TynStage *stage = malloc(sizeof(TynStage));
   stage->flags = 0;
   // stage->flags = 0;
@@ -79,7 +79,9 @@ static char *cmd(AppState *state, char *command, STAGEFLAG *flags) {
     CloseWindow();
     *flags |= STAGEFLAG_DISABLED;
   } else if (strcmp(command, "?") == 0) {
-    return "type: time\ntype: run game0\ntype: run maze\ntype: run shadertest0\ntype: run networktest0\ntype: run rendertest0\ntype: run physicstest0\ntype: stopgame";
+    return "type: time\ntype: run game0\ntype: run maze\ntype: run "
+           "shadertest0\ntype: run networktest0\ntype: run rendertest0\ntype: "
+           "run physicstest0\ntype: stopgame";
   } else if (strcmp(command, "time") == 0) {
     return "4:20";
   } else if (strcmp(command, "run game0") == 0) {
@@ -95,17 +97,17 @@ static char *cmd(AppState *state, char *command, STAGEFLAG *flags) {
     AppNewStage(state, TestShader0Init);
     return "Shader with game props data stored in texture";
   } else if (strcmp(command, "run networktest0") == 0) {
-      AppCleanupStages(state);
-      AppNewStage(state, TestNetworksim0Init);
-      return "wip network movement";
+    AppCleanupStages(state);
+    AppNewStage(state, TestNetworksim0Init);
+    return "wip network movement";
   } else if (strcmp(command, "run rendertest0") == 0) {
-      AppCleanupStages(state);
-      AppNewStage(state, TestRender0Init);
-      return "wip render test";
+    AppCleanupStages(state);
+    AppNewStage(state, TestRender0Init);
+    return "wip render test";
   } else if (strcmp(command, "run physicstest0") == 0) {
-      AppCleanupStages(state);
-      AppNewStage(state, TestPhysics0Init);
-      return "wip physics test";
+    AppCleanupStages(state);
+    //AppNewStage(state, TestPhysics0Init);
+    return "wip physics test";
   } else if (strcmp(command, "stopgame") == 0) {
     AppCleanupStages(state);
   }
@@ -115,7 +117,7 @@ static char *cmd(AppState *state, char *command, STAGEFLAG *flags) {
 
 STAGEFLAG AppStep(AppState *state, STAGEFLAG flags) {
   // writes any broadcasted message from stages
-  char* broadcastcmd = NULL;
+  char *broadcastcmd = NULL;
   // disables further stepping if any stage blocks it
   bool blockstep = false;
   for (int i = 0; i < state->activestages; i++) {
@@ -128,12 +130,12 @@ STAGEFLAG AppStep(AppState *state, STAGEFLAG flags) {
 
     // push broadcast command from previous stages
     if (broadcastcmd && stage->frame.cmdout) {
-        stage->frame.cmdout(stage->state, broadcastcmd);
+      stage->frame.cmdout(stage->state, broadcastcmd);
     }
 
     // does nothing if previous stage blocked further steps
     if (blockstep) {
-        continue;
+      continue;
     }
 
     if (stage->frame.step) {
@@ -142,7 +144,7 @@ STAGEFLAG AppStep(AppState *state, STAGEFLAG flags) {
 
     // start cmd processing
     if (stage->frame.cmdin) {
-      CMDFLAF flag = 0;
+      CMDFLAG flag = 0;
       // get command from frame
       char *message = stage->frame.cmdin(stage->state, &flag);
       if (message) {
@@ -154,7 +156,7 @@ STAGEFLAG AppStep(AppState *state, STAGEFLAG flags) {
       }
       // storage broadcas commands
       if (message && flag | CMDFLAG_BROADCAST) {
-          broadcastcmd = message;
+        broadcastcmd = message;
       }
     }
 
@@ -178,7 +180,7 @@ void AppDraw(AppState *state) {
       stage->frame.draw(stage->state);
     }
 
-     if (stage->flags & STAGEFLAG_BLOCKDRAW) {
+    if (stage->flags & STAGEFLAG_BLOCKDRAW) {
       break;
     }
   }
