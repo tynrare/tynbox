@@ -81,7 +81,7 @@ static char *cmd(AppState *state, char *command, STAGEFLAG *flags) {
   } else if (strcmp(command, "?") == 0) {
     return "type: time\ntype: run game0\ntype: run maze\ntype: run "
            "shadertest0\ntype: run networktest0\ntype: run rendertest0\ntype: "
-           "run physicstest0\ntype: stopgame";
+           "run collisiontest0\ntype: stopgame";
   } else if (strcmp(command, "time") == 0) {
     return "4:20";
   } else if (strcmp(command, "run game0") == 0) {
@@ -104,9 +104,9 @@ static char *cmd(AppState *state, char *command, STAGEFLAG *flags) {
     AppCleanupStages(state);
     AppNewStage(state, TestRender0Init);
     return "wip render test";
-  } else if (strcmp(command, "run physicstest0") == 0) {
+  } else if (strcmp(command, "run collisiontest0") == 0) {
     AppCleanupStages(state);
-    //AppNewStage(state, TestPhysics0Init);
+    AppNewStage(state, TestCollisions0Init);
     return "wip physics test";
   } else if (strcmp(command, "stopgame") == 0) {
     AppCleanupStages(state);

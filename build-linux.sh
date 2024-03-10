@@ -1,11 +1,11 @@
 #!/bin/sh
 # Change your executable name here
-GAME_NAME="game"
+GAME_NAME="tynbox"
 
 # Set your sources here (relative paths!)
 # Example with two source folders:
 # SOURCES="src/*.c src/submodule/*.c"
-SOURCES="main.c"
+SOURCES="src/*.c"
 
 # Set your raylib/src location here (relative path!)
 RAYLIB_SRC="../raylib/src"
@@ -134,6 +134,7 @@ fi
 
 # Build the actual game
 mkdir -p $OUTPUT_DIR
+cp -r ./res $OUTPUT_DIR/res
 cd $OUTPUT_DIR
 [ -z "$QUIET" ] && echo "COMPILE-INFO: Compiling game code."
 if [ -n "$REALLY_QUIET" ]; then

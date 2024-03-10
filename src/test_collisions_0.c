@@ -1,7 +1,7 @@
 #include "include/test_collisions_0.h"
-#include <box2d/types.h>
-#include <aabb.h>
-#include <box2d/math.h>
+#include "external/box2c/types.h"
+#include "external/box2c/aabb.h"
+#include "external/box2c/math.h"
 #include <stdlib.h>
 
 static void _dispose(TestCollisions0State* state);

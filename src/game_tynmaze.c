@@ -138,7 +138,7 @@ void TynmazeStepPawn(TynmazeState* state) {
     }
 
     // rotate
-    state->pawn.playerTurn += PI / 2.0f * state->pawn.inputDirection.y;
+    state->pawn.playerTurn += PI * 0.5f * state->pawn.inputDirection.y;
 
     // move
     int collider = 0;

@@ -1,6 +1,6 @@
 #include "raylib.h"
 #include "raymath.h"
-#include "src/include/app.h"
+#include "include/app.h"
 #include <stdio.h>
 #include <stdlib.h>
 

@@ -5,27 +5,11 @@
 #include "include/app.h"
 #include <stdlib.h>
 
-
-
 STAGEFLAG Console_UpdateLogicFrame(ConsoleState *state, STAGEFLAG flags) {
-  bool inputed = false;
-
-  if (isAnyKeyPressed(1, KEY_TAB)) {
-    inputed = true;
-  } else {
-    state->inputonce = true;
-  }
-
-  if (state->inputonce) {
-    if (IsKeyDown(KEY_TAB)) {
-      flags ^= STAGEFLAG_DISABLEDDRAW;
-      flags ^= STAGEFLAG_BLOCKSTEP;
-    }
-  }
-
-  if (inputed) {
-    state->inputonce = false;
-  }
+	if (IsKeyPressed(KEY_TAB)) {
+		flags ^= STAGEFLAG_DISABLEDDRAW;
+		flags ^= STAGEFLAG_BLOCKSTEP;
+	}
   
   if (flags & STAGEFLAG_DISABLEDDRAW) {
     return flags;
