@@ -89,7 +89,7 @@ void G231012Draw(G231012_GameState* state) {
 		(Rectangle) {
 		0, 0, 1024, 1024
 	}, (Vector2) { 0, 0 }, 0, WHITE);
-	DrawText("XXX", 190, 200, 20, LIGHTGRAY);
+	DrawText("TAB to open console.\n? to display commands", 16, 200, 20, LIGHTGRAY);
 
 	SpriteDraw(&state->assets.crosshair);
 	SpriteDraw(&state->assets.playership);

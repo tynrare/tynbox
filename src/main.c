@@ -14,6 +14,12 @@
 int screenWidth = 512;
 int screenHeight = 512;
 
+static TynStage stage = {0};
+static AppState *state;
+bool active = false;
+
+void UpdateDrawFrame(void);     // Update and Draw one frame
+
 //----------------------------------------------------------------------------------
 // Main Enry Point
 //----------------------------------------------------------------------------------
@@ -24,26 +30,38 @@ int main() {
     // SetConfigFlags(FLAG_MSAA_4X_HINT); // Set MSAA 4X hint before windows
     //  creation
 
-  InitWindow(screenWidth, screenHeight, "tynbox 240106");
+  InitWindow(screenWidth, screenHeight, "tynbox 240310");
 
-  TynStage stage = {0};
-  AppState *state = AppInit(&stage);
-
+  state = AppInit(&stage);
+  active = true;
   // DisableCursor();
 
 #if defined(PLATFORM_WEB)
   emscripten_set_main_loop(UpdateDrawFrame, 0, 1);
-  throw "unimplemented"
 #else
-#endif
   SetTargetFPS(60); 
 
-  while (!WindowShouldClose()) // Detect window close button or ESC key
-  {
+  while (!WindowShouldClose() && active) {
+		UpdateDrawFrame();
+	} // Detect window close button or ESC key
+#endif
+
+  stage.frame.dispose(state);
+  CloseWindow();
+
+  return 0;
+}
+
+void UpdateDrawFrame(void)
+{
     STAGEFLAG flags = stage.frame.step(state, stage.flags);
 
     if (flags & STAGEFLAG_DISABLED) {
-      break;
+      active = false;
+#if defined(PLATFORM_WEB)
+      emscripten_cancel_main_loop();
+#endif
+      return;
     }
 
     BeginDrawing();
@@ -51,9 +69,4 @@ int main() {
     stage.frame.draw(state);
     
     EndDrawing();
-  }
-
-  stage.frame.dispose(state);
-
-  return 0;
 }

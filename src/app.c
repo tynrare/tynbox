@@ -24,10 +24,10 @@ AppState *AppInit(TynStage *stage) {
   AppNewStage(state, Console_Init);
   // AppNewStage(state, TestShader0Init);
   // AppNewStage(state, TestRender0Init);
-  AppNewStage(state, TynmazeInit);
+  // AppNewStage(state, TynmazeInit);
   // AppNewStage(state, TestPhysics0Init);
   // AppNewStage(state, TestCollisions0Init);
-  // AppNewStage(state, G231012_Init);
+  AppNewStage(state, G231012_Init);
   //AppNewStage(state, TestNetworksim0Init);
 
   return state;
