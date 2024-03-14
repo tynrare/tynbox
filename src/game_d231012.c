@@ -48,7 +48,7 @@ G231012_GameState *G231012_Init(TynStage *stage) {
                                  true,
                                  0,
                                  1};
-  G231012_PawnConfig pawnConfig = {7.0f, 0.05f, 0.3f, 0.1f, 0.03f};
+  G231012_PawnConfig pawnConfig = {7.0f, 0.05f, 0.3f, 0.2f, 0.03f};
   G231012_PawnConfig botConfig = {3.0f, 0.15f, 0.2f, 0.2f, 0.1f};
   G231012_BulletConfig bulletConfig = {12.0f, 1.0f};
 
@@ -112,7 +112,7 @@ static void StepPawn(G231012_PawnState *pawn, G231012_PawnConfig *config,
   sprite->rotation = Vector2Angle(V2UP, pawn->lookDirection) * RAD2DEG - 180;
 }
 
-static void SpawnBullet(G231012_GameState *state, Vector2 position,
+static bool SpawnBullet(G231012_GameState *state, Vector2 position,
                         Vector2 target) {
   for (int i = 0; i < BULLETS_COUNT; i++) {
     G231012_BulletState *bullet = &state->bullets[i];
@@ -120,17 +120,30 @@ static void SpawnBullet(G231012_GameState *state, Vector2 position,
       continue;
     }
 
+    const Vector2 target_shifted = Vector2Add(
+        (Vector2){GetRandomValue(-16, 16), GetRandomValue(-16, 16)}, target);
+    const Vector2 direction =
+        Vector2Normalize(Vector2Subtract(target_shifted, position));
+
+		if (Vector2Distance(direction, state->pawn.lookDirection) > 0.1) {
+			continue;
+		}
+
     bullet->alive = true;
     bullet->position = position;
     bullet->speed = state->bulletConfig.speed;
     bullet->timestamp = GetTime();
-    const Vector2 target_shifted = Vector2Add(
-        (Vector2){GetRandomValue(-16, 16), GetRandomValue(-16, 16)}, target);
-    bullet->direction = Vector2Scale(
-        Vector2Normalize(Vector2Subtract(target_shifted, position)), bullet->speed);
+    bullet->direction = Vector2Scale(direction, bullet->speed);
 
-    return;
+    const Vector2 recoil = Vector2Scale(Vector2Negate(bullet->direction), 0.1f);
+
+    state->pawn.position.x += recoil.x;
+    state->pawn.position.y += recoil.y;
+
+    return true;
   }
+
+	return false;
 }
 
 static void StepPawnAction(G231012_GameState *state, G231012_PawnState *pawn,
@@ -149,8 +162,7 @@ static void StepPawnAction(G231012_GameState *state, G231012_PawnState *pawn,
     }
 
     const dist = Vector2Length(Vector2Subtract(bot->position, pawn->position));
-    if (dist < 256) {
-      SpawnBullet(state, pawn->position, bot->position);
+    if (dist < 256 && SpawnBullet(state, pawn->position, bot->position)) {
       return;
     }
   }
@@ -257,7 +269,20 @@ static int G231012Step(G231012_GameState *state, int flags) {
     state->pawn.targetPosition = mousepos;
   }
 
-  state->pawn.lookAt = mousepos;
+  float closest_dist = Vector2Distance(mousepos, state->pawn.position);
+  Vector2 closest_target = mousepos;
+  for (int i = 0; i < BOTS_COUNT; i++) {
+    G231012_PawnState *bot = &state->bots[i];
+    if (!bot->alive) {
+      continue;
+    }
+    float dist = Vector2Distance(state->pawn.position, bot->position);
+    if (dist < closest_dist) {
+      closest_dist = dist;
+      closest_target = bot->position;
+    }
+  }
+  state->pawn.lookAt = closest_target;
 
   switch (state->pawn.control_mode) {
   case PAWN_CONTROL_MODE_WASD:
