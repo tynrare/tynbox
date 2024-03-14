@@ -99,6 +99,12 @@ STAGEFLAG TestShader0Step(TestShader0State *state, STAGEFLAG flags) {
 }
 
 void TestShader0Draw(TestShader0State *state) {
+#if defined(PLATFORM_WEB)
+  DrawText("Web version not supported", 
+           10, 10, 10, RED);
+	return;
+#endif
+
   int resolutionLoc = GetShaderLocation(state->shader, "resolution");
   int mouseLoc = GetShaderLocation(state->shader, "mouse");
   int timeLoc = GetShaderLocation(state->shader, "time");
