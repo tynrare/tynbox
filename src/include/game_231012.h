@@ -24,9 +24,11 @@ typedef struct G231012_PawnState {
 	Vector2 position;
 	Vector2 direction;
 	Vector2 targetPosition;
+	Vector2 lookAt;
 	float speed;
 	Vector2 lookDirection;
 	PAWN_CONTROL_MODE control_mode;
+	bool alive;
 } G231012_PawnState;
 
 typedef struct G231012_PawnConfig {
@@ -41,17 +43,22 @@ typedef struct G231012_GameAssets {
 	Sprite playership;
 	Sprite tilefloor;
 	Sprite locationmark;
+	Sprite botship;
 } G231012_GameAssets;
 
 typedef struct G231012_GameState {
-    G231012_GameAssets assets;
+	G231012_GameAssets assets;
 	G231012_PawnState pawn;
 	G231012_PawnConfig pawnConfig;
+	G231012_PawnConfig botConfig;
+	G231012_PawnState *bots;
+	Sprite *bot_sprites;
 } G231012_GameState;
 
 G231012_GameState *G231012_Init(TynStage *stage);
 
 Sprite SpriteLoad(const char* fileName);
+Sprite SpriteCreate(Texture2D texture);
 void SpriteDraw(Sprite* sprite);
 
 #endif

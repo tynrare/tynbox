@@ -134,7 +134,7 @@ fi
 
 # Build the actual game
 mkdir -p $OUTPUT_DIR
-cp -r ./res $OUTPUT_DIR/res
+cp -ra ./res/. $OUTPUT_DIR/res
 cd $OUTPUT_DIR
 [ -z "$QUIET" ] && echo "COMPILE-INFO: Compiling game code."
 if [ -n "$REALLY_QUIET" ]; then
