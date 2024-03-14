@@ -7,10 +7,10 @@
 #include <math.h>
 #include <time.h> // Required for: localtime(), asctime()
 
-#if defined(PLATFORM_DESKTOP)
-#define GLSL_VERSION 330
-#else // PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
+#if defined(PLATFORM_WEB)
 #define GLSL_VERSION 100
+#else 
+#define GLSL_VERSION 330
 #endif
 
 
@@ -24,7 +24,7 @@ void _TestShader0Init(TestShader0State *state) {
   state->shaderAutoReloading = false;
   state->totalTime = 0;
   state->fragShaderFileModTime = 
-      GetFileModTime(Raymarch2dfragShaderFileName);
+		GetFileModTime(TextFormat(Raymarch2dfragShaderFileName, GLSL_VERSION));
 }
 
 TestShader0State* TestShader0Init(TynStage *stage) {

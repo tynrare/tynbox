@@ -1,6 +1,12 @@
 #include "include/test_render_0.h"
 #include <stdlib.h>
 
+#if defined(PLATFORM_WEB)
+#define GLSL_VERSION 100
+#else 
+#define GLSL_VERSION 330
+#endif
+
 void TestRender0Dispose(TestRender0State* state);
 STAGEFLAG TestRender0Step(TestRender0State* state, STAGEFLAG flags);
 void TestRender0Draw(TestRender0State* state);
@@ -19,7 +25,8 @@ void _TestRender0Init(TestRender0State* state) {
     state->tex_target = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     // Load shader for model
     // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default vertex shader
-    state->shader = LoadShader(0, "res/shaders/sobel.fs");
+    state->shader = 
+          LoadShader(0, TextFormat("res/shaders/sobel-%i.fs", GLSL_VERSION));
 
     //state->model.materials[0].shader = state->shader;                     // Set shader effect to 3d model
     state->model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = state->texture; // Bind texture to model
