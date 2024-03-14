@@ -28,29 +28,42 @@ G231012_GameAssets load() {
   G231012_GameAssets ga = {
       SpriteLoad("res/crosshair.png"), SpriteLoad("res/playership.png"),
       SpriteLoad("res/tilefloor.png"), SpriteLoad("res/locationmark.png"),
-      SpriteLoad("res/ship_C.png"),
+      SpriteLoad("res/ship_C.png"),    SpriteLoad("res/ship_B.png"),
   };
 
   return ga;
 }
 
 const short unsigned int BOTS_COUNT = 5;
+const short unsigned int BULLETS_COUNT = 100;
 
 G231012_GameState *G231012_Init(TynStage *stage) {
-  G231012_PawnState pawnState = {
-      (Vector2){256, 256}, V2UP, (Vector2){256, 256}, V2UP, 0, V2UP, 0, true};
-  G231012_PawnConfig pawnConfig = {7.0f, 0.05f, 0.3f, 0.1f};
-  G231012_PawnConfig botConfig = {4.0f, 0.15f, 0.2f, 0.2f};
+  G231012_PawnState pawnState = {(Vector2){256, 256},
+                                 V2UP,
+                                 (Vector2){256, 256},
+                                 V2UP,
+                                 0,
+                                 V2UP,
+                                 0,
+                                 true,
+                                 0};
+  G231012_PawnConfig pawnConfig = {7.0f, 0.05f, 0.3f, 0.1f, 0.1f};
+  G231012_PawnConfig botConfig = {4.0f, 0.15f, 0.2f, 0.2f, 0.1f};
+  G231012_BulletConfig bulletConfig = { 10.0f, 1.0f };
 
   G231012_GameState *state = malloc(sizeof(G231012_GameState));
   state->assets = load();
   state->pawn = pawnState;
   state->pawnConfig = pawnConfig;
   state->botConfig = botConfig;
+  state->bulletConfig = bulletConfig;
 
   state->bots =
       (G231012_PawnState *)MemAlloc(sizeof(G231012_PawnState) * BOTS_COUNT);
   state->bot_sprites = (Sprite *)MemAlloc(sizeof(Sprite) * BOTS_COUNT);
+  state->bullets = (G231012_PawnState *)MemAlloc(sizeof(G231012_BulletState) *
+                                                 BULLETS_COUNT);
+  state->bullet_sprites = (Sprite *)MemAlloc(sizeof(Sprite) * BULLETS_COUNT);
 
   for (int i = 0; i < BOTS_COUNT; i++) {
     G231012_PawnState *bot = &state->bots[i];
@@ -58,11 +71,15 @@ G231012_GameState *G231012_Init(TynStage *stage) {
     bot->control_mode = PAWN_CONTROL_MODE_POINTER;
     bot->alive = false;
 
-    sprite->position = (Vector2){0.5f, 0.5f};
-    sprite->anchor = (Vector2){0.5f, 0.5f};
-    sprite->texture = state->assets.botship.texture;
-    sprite->rotation = 0.0f;
-    sprite->scale = 1.0f;
+    SpriteInit(sprite, state->assets.botship.texture);
+  }
+
+  for (int i = 0; i < BULLETS_COUNT; i++) {
+    G231012_BulletState *bullet = &state->bullets[i];
+    Sprite *sprite = &state->bullet_sprites[i];
+
+    bullet->alive = false;
+    SpriteInit(sprite, state->assets.bullet.texture);
   }
 
   stage->state = state;
@@ -94,6 +111,67 @@ static void StepPawn(G231012_PawnState *pawn, G231012_PawnConfig *config,
   sprite->rotation = Vector2Angle(V2UP, pawn->lookDirection) * RAD2DEG - 180;
 }
 
+static void SpawnBullet(G231012_GameState *state, Vector2 position,
+                        Vector2 target) {
+  for (int i = 0; i < BULLETS_COUNT; i++) {
+    G231012_BulletState *bullet = &state->bullets[i];
+    if (bullet->alive) {
+      continue;
+    }
+
+    bullet->alive = true;
+    bullet->position = position;
+    bullet->speed = state->bulletConfig.speed;
+		bullet->timestamp = GetTime();
+    bullet->direction = Vector2Scale(
+        Vector2Normalize(Vector2Subtract(target, position)), bullet->speed);
+
+		return;
+  }
+}
+
+static void StepPawnAction(G231012_GameState *state, G231012_PawnState *pawn,
+                           G231012_PawnConfig *config) {
+  const double timestamp = GetTime();
+  if (pawn->action_timestamp + config->action_threshold > timestamp) {
+    return;
+  }
+
+	pawn->action_timestamp = timestamp;
+
+  for (int i = 0; i < BOTS_COUNT; i++) {
+    G231012_PawnState *bot = &state->bots[i];
+    if (!bot->alive) {
+      continue;
+    }
+
+    const dist =
+        Vector2Length(Vector2Subtract(bot->position, pawn->position));
+    if (dist < 256) {
+      SpawnBullet(state, pawn->position, bot->position);
+    }
+  }
+}
+
+static void StepBullets(G231012_GameState *state) {
+  for (int i = 0; i < BULLETS_COUNT; i++) {
+    G231012_BulletState *bullet = &state->bullets[i];
+    if (!bullet->alive) {
+      continue;
+    }
+
+		if (bullet->timestamp + state->bulletConfig.lifetime < GetTime()) {
+			bullet->alive = false;
+			continue;
+		}
+    Sprite *sprite = &state->bullet_sprites[i];
+
+    bullet->position = Vector2Add(bullet->position, bullet->direction);
+    sprite->position = bullet->position;
+    sprite->rotation = Vector2Angle(V2UP, bullet->direction) * RAD2DEG - 180;
+  }
+}
+
 static void SpawnBots(G231012_GameState *state) {
   for (int i = 0; i < BOTS_COUNT; i++) {
     G231012_PawnState *bot = &state->bots[i];
@@ -101,12 +179,11 @@ static void SpawnBots(G231012_GameState *state) {
       continue;
     }
 
-    bot->position =
-				Vector2Add(state->pawn.position,
+    bot->position = Vector2Add(
+        state->pawn.position,
         Vector2Scale(Vector2Normalize((Vector2){GetRandomValue(-256, 256),
                                                 GetRandomValue(-256, 256)}),
-                     512)
-				);
+                     512));
     bot->direction = V2UP;
     bot->targetPosition = (Vector2){256, 256};
     bot->speed = 0;
@@ -128,6 +205,21 @@ static void StepBots(G231012_GameState *state) {
     bot->lookAt = state->pawn.position;
     PawnPointerControls(bot, &state->botConfig);
     StepPawn(bot, &state->pawnConfig, &state->bot_sprites[i]);
+
+
+		for (int i = 0; i < BULLETS_COUNT; i++) {
+			G231012_BulletState *bullet = &state->bullets[i];
+			if (!bullet->alive) {
+				continue;
+			}
+
+			const dist = Vector2Length(Vector2Subtract(bullet->position, bot->position));
+			if (dist < 16) {
+				bullet->alive = false;
+				bot->alive = false;
+				break;
+			}
+		}
   }
 }
 
@@ -159,24 +251,36 @@ static int G231012Step(G231012_GameState *state, int flags) {
   }
 
   StepPawn(&state->pawn, &state->pawnConfig, &state->assets.playership);
+  StepPawnAction(state, &state->pawn, &state->pawnConfig);
+  StepBots(state);
+  StepBullets(state);
 
   state->assets.crosshair.position = mousepos;
   state->assets.locationmark.position = state->pawn.targetPosition;
   state->assets.locationmark.rotation += 1;
   state->assets.locationmark.scale = 1.1 + sinf(GetTime()) * 0.1;
 
-  StepBots(state);
-
   return flags;
+}
+
+static void DrawBullets(G231012_GameState *state) {
+  for (int i = 0; i < BULLETS_COUNT; i++) {
+    G231012_BulletState *bullet = &state->bullets[i];
+    if (!bullet->alive) {
+      continue;
+    }
+    Sprite *sprite = &state->bullet_sprites[i];
+    SpriteDraw(sprite);
+  }
 }
 
 static void DrawBots(G231012_GameState *state) {
   for (int i = 0; i < BOTS_COUNT; i++) {
     G231012_PawnState *bot = &state->bots[i];
-    Sprite *sprite = &state->bot_sprites[i];
     if (!bot->alive) {
       continue;
     }
+    Sprite *sprite = &state->bot_sprites[i];
     SpriteDraw(sprite);
   }
 }
@@ -191,6 +295,7 @@ static void G231012Draw(G231012_GameState *state) {
   SpriteDraw(&state->assets.playership);
   SpriteDraw(&state->assets.locationmark);
   DrawBots(state);
+  DrawBullets(state);
 
 #if DEBUG
   DrawLine(state->pawn.position.x, state->pawn.position.y,
@@ -261,9 +366,18 @@ Sprite SpriteLoad(const char *fileName) {
 }
 
 Sprite SpriteCreate(Texture2D texture) {
-  Sprite s = {(Vector2){0.0, 0.0}, (Vector2){0.5, 0.5}, texture, 0.0, 1.0};
+  Sprite s = {0};
+  SpriteInit(&s, texture);
 
   return s;
+}
+
+Sprite SpriteInit(Sprite *s, Texture2D texture) {
+  s->position = (Vector2){0.0, 0.0};
+  s->anchor = (Vector2){0.5, 0.5};
+  s->rotation = 0.0;
+  s->scale = 1.0;
+  s->texture = texture;
 }
 
 void SpriteDraw(Sprite *sprite) {
