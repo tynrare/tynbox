@@ -24,6 +24,6 @@ void Console_UpdateDrawFrame(ConsoleState *state);
 void Console_Dispose(ConsoleState *state);
 void Console_Init(TynStage *stage);
 char *Console_ConfirmCommand(ConsoleState *state, STAGEFLAG *flags);
-void Console_Print(ConsoleState *state, char *message);
+char *Console_Print(ConsoleState *state, char *message);
 
 #endif // !TYNROAR_RCMD_H

@@ -59,7 +59,7 @@ char* Console_ConfirmCommand(ConsoleState* state, STAGEFLAG *flags) {
   return state->inputcommand;
 }
 
-void Console_Print(ConsoleState* state, char* message) {
+char *Console_Print(ConsoleState* state, char* message) {
   strcpy(state->outputstring, message);
 }
 

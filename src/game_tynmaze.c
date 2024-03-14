@@ -4,9 +4,9 @@
 #include <string.h>
 #include <math.h>
 
-int TynmazeDispose(TynmazeState *state);
+void TynmazeDispose(TynmazeState *state);
 STAGEFLAG TynmazeStep(TynmazeState *state, STAGEFLAG flags);
-int TynmazeDraw(TynmazeState *state);
+void TynmazeDraw(TynmazeState *state);
 
 float distlerp(float a, float b, float t) { 
     float tt = min(1.0f, 1.0f / (abs(b - a) + 0.01));
@@ -76,7 +76,7 @@ void _TynmazeInit(TynmazeState *state) {
   state->pawn.tagIndex = 0;
 }
 
-static void cmd(TynmazeState* state, char* command) {
+static char *cmd(TynmazeState* state, char* command) {
     if (strcmp(command, "mode fp") == 0) {
         state->viewMode = TMZ_VIEW_MODE_PAWN_FP;
     } else if (strcmp(command, "mode topdown") == 0) {
@@ -97,7 +97,7 @@ TynmazeState *TynmazeInit(TynStage *stage) {
   return stage->state;
 }
 
-int TynmazeDispose(TynmazeState *state) {
+void TynmazeDispose(TynmazeState *state) {
   UnloadImageColors(state->mapPixels); // Unload color array
 
   UnloadTexture(state->tex_mark);
@@ -220,7 +220,7 @@ STAGEFLAG TynmazeStep(TynmazeState *state, STAGEFLAG flags) {
     return flags; 
 }
 
-int TynmazeDraw(TynmazeState *state) {
+void TynmazeDraw(TynmazeState *state) {
   BeginMode3D(state->camera);
   DrawModel(state->model, state->pawn.mapPosition, 1.0f, WHITE); // Draw maze map
 
@@ -242,5 +242,5 @@ int TynmazeDraw(TynmazeState *state) {
   DrawFPS(10, 10);
   DrawText(TextFormat("Steps: %i", state->pawn.steps), 10, 50, 10, BLACK);
 
-  return 0;
+  return;
 }
