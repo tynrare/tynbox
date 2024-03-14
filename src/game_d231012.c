@@ -34,7 +34,7 @@ G231012_GameAssets load() {
   return ga;
 }
 
-const short unsigned int BOTS_COUNT = 5;
+const short unsigned int BOTS_COUNT = 16;
 const short unsigned int BULLETS_COUNT = 100;
 
 G231012_GameState *G231012_Init(TynStage *stage) {
@@ -46,7 +46,8 @@ G231012_GameState *G231012_Init(TynStage *stage) {
                                  V2UP,
                                  0,
                                  true,
-                                 0};
+                                 0,
+																1};
   G231012_PawnConfig pawnConfig = {7.0f, 0.05f, 0.3f, 0.1f, 0.1f};
   G231012_PawnConfig botConfig = {4.0f, 0.15f, 0.2f, 0.2f, 0.1f};
   G231012_BulletConfig bulletConfig = { 10.0f, 1.0f };
@@ -173,8 +174,15 @@ static void StepBullets(G231012_GameState *state) {
 }
 
 static void SpawnBots(G231012_GameState *state) {
+
+	// should be timed instead
+	if (GetRandomValue(0, 32) > 2) {
+		return;
+	}
+
   for (int i = 0; i < BOTS_COUNT; i++) {
     G231012_PawnState *bot = &state->bots[i];
+    Sprite *sprite = &state->bot_sprites[i];
     if (bot->alive) {
       continue;
     }
@@ -183,12 +191,18 @@ static void SpawnBots(G231012_GameState *state) {
         state->pawn.position,
         Vector2Scale(Vector2Normalize((Vector2){GetRandomValue(-256, 256),
                                                 GetRandomValue(-256, 256)}),
-                     512));
+                     GetRandomValue(512, 614)));
     bot->direction = V2UP;
     bot->targetPosition = (Vector2){256, 256};
     bot->speed = 0;
     bot->lookDirection = (Vector2){0, 0};
     bot->alive = true;
+
+		const int hitpoints_max = 4;
+		bot->hitpoints = GetRandomValue(2, hitpoints_max);
+		sprite->scale = (float)bot->hitpoints / (float)hitpoints_max;
+
+		break;
   }
 }
 
@@ -216,7 +230,9 @@ static void StepBots(G231012_GameState *state) {
 			const dist = Vector2Length(Vector2Subtract(bullet->position, bot->position));
 			if (dist < 16) {
 				bullet->alive = false;
-				bot->alive = false;
+				if(--bot->hitpoints <= 0) {
+					bot->alive = false;
+				}
 				break;
 			}
 		}

@@ -30,6 +30,7 @@ typedef struct G231012_PawnState {
 	PAWN_CONTROL_MODE control_mode;
 	bool alive;
 	double action_timestamp;
+	int hitpoints;
 } G231012_PawnState;
 
 typedef struct G231012_PawnConfig {
