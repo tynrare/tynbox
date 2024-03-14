@@ -47,10 +47,10 @@ G231012_GameState *G231012_Init(TynStage *stage) {
                                  0,
                                  true,
                                  0,
-																1};
-  G231012_PawnConfig pawnConfig = {7.0f, 0.05f, 0.3f, 0.1f, 0.1f};
-  G231012_PawnConfig botConfig = {4.0f, 0.15f, 0.2f, 0.2f, 0.1f};
-  G231012_BulletConfig bulletConfig = { 10.0f, 1.0f };
+                                 1};
+  G231012_PawnConfig pawnConfig = {7.0f, 0.05f, 0.3f, 0.1f, 0.03f};
+  G231012_PawnConfig botConfig = {3.0f, 0.15f, 0.2f, 0.2f, 0.1f};
+  G231012_BulletConfig bulletConfig = {12.0f, 1.0f};
 
   G231012_GameState *state = malloc(sizeof(G231012_GameState));
   state->assets = load();
@@ -123,11 +123,13 @@ static void SpawnBullet(G231012_GameState *state, Vector2 position,
     bullet->alive = true;
     bullet->position = position;
     bullet->speed = state->bulletConfig.speed;
-		bullet->timestamp = GetTime();
+    bullet->timestamp = GetTime();
+    const Vector2 target_shifted = Vector2Add(
+        (Vector2){GetRandomValue(-16, 16), GetRandomValue(-16, 16)}, target);
     bullet->direction = Vector2Scale(
-        Vector2Normalize(Vector2Subtract(target, position)), bullet->speed);
+        Vector2Normalize(Vector2Subtract(target_shifted, position)), bullet->speed);
 
-		return;
+    return;
   }
 }
 
@@ -138,7 +140,7 @@ static void StepPawnAction(G231012_GameState *state, G231012_PawnState *pawn,
     return;
   }
 
-	pawn->action_timestamp = timestamp;
+  pawn->action_timestamp = timestamp;
 
   for (int i = 0; i < BOTS_COUNT; i++) {
     G231012_PawnState *bot = &state->bots[i];
@@ -146,10 +148,10 @@ static void StepPawnAction(G231012_GameState *state, G231012_PawnState *pawn,
       continue;
     }
 
-    const dist =
-        Vector2Length(Vector2Subtract(bot->position, pawn->position));
+    const dist = Vector2Length(Vector2Subtract(bot->position, pawn->position));
     if (dist < 256) {
       SpawnBullet(state, pawn->position, bot->position);
+      return;
     }
   }
 }
@@ -161,10 +163,10 @@ static void StepBullets(G231012_GameState *state) {
       continue;
     }
 
-		if (bullet->timestamp + state->bulletConfig.lifetime < GetTime()) {
-			bullet->alive = false;
-			continue;
-		}
+    if (bullet->timestamp + state->bulletConfig.lifetime < GetTime()) {
+      bullet->alive = false;
+      continue;
+    }
     Sprite *sprite = &state->bullet_sprites[i];
 
     bullet->position = Vector2Add(bullet->position, bullet->direction);
@@ -175,10 +177,10 @@ static void StepBullets(G231012_GameState *state) {
 
 static void SpawnBots(G231012_GameState *state) {
 
-	// should be timed instead
-	if (GetRandomValue(0, 32) > 2) {
-		return;
-	}
+  // should be timed instead
+  if (GetRandomValue(0, 64) > 2) {
+    return;
+  }
 
   for (int i = 0; i < BOTS_COUNT; i++) {
     G231012_PawnState *bot = &state->bots[i];
@@ -198,11 +200,11 @@ static void SpawnBots(G231012_GameState *state) {
     bot->lookDirection = (Vector2){0, 0};
     bot->alive = true;
 
-		const int hitpoints_max = 4;
-		bot->hitpoints = GetRandomValue(2, hitpoints_max);
-		sprite->scale = (float)bot->hitpoints / (float)hitpoints_max;
+    const int hitpoints_max = 2;
+    bot->hitpoints = GetRandomValue(1, hitpoints_max);
+    sprite->scale = (float)bot->hitpoints / (float)hitpoints_max;
 
-		break;
+    break;
   }
 }
 
@@ -220,22 +222,22 @@ static void StepBots(G231012_GameState *state) {
     PawnPointerControls(bot, &state->botConfig);
     StepPawn(bot, &state->pawnConfig, &state->bot_sprites[i]);
 
+    for (int i = 0; i < BULLETS_COUNT; i++) {
+      G231012_BulletState *bullet = &state->bullets[i];
+      if (!bullet->alive) {
+        continue;
+      }
 
-		for (int i = 0; i < BULLETS_COUNT; i++) {
-			G231012_BulletState *bullet = &state->bullets[i];
-			if (!bullet->alive) {
-				continue;
-			}
-
-			const dist = Vector2Length(Vector2Subtract(bullet->position, bot->position));
-			if (dist < 16) {
-				bullet->alive = false;
-				if(--bot->hitpoints <= 0) {
-					bot->alive = false;
-				}
-				break;
-			}
-		}
+      const dist =
+          Vector2Length(Vector2Subtract(bullet->position, bot->position));
+      if (dist < 16) {
+        bullet->alive = false;
+        if (--bot->hitpoints <= 0) {
+          bot->alive = false;
+        }
+        break;
+      }
+    }
   }
 }
 
