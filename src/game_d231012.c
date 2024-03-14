@@ -76,7 +76,7 @@ int G231012Step(G231012_GameState *state, int flags) {
 	state->assets.crosshair.position = mousepos;
 	state->assets.playership.position = state->pawn.position;
 	state->assets.playership.rotation =
-		Vector2Angle(V2UP, state->pawn.lookDirection) * -RAD2DEG;
+		Vector2Angle(V2UP, state->pawn.lookDirection) * RAD2DEG;
 	state->assets.locationmark.position = state->pawn.targetPosition;
 	state->assets.locationmark.rotation += 1;
 	state->assets.locationmark.scale = 1.1 + sinf(GetTime()) * 0.1;
