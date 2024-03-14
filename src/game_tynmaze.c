@@ -140,7 +140,7 @@ void TynmazeStepPawn(TynmazeState* state) {
     // rotate
     state->pawn.playerTurn += PI * 0.5f * state->pawn.inputDirection.y;
 
-    // move
+    // move. cycle will move player towards closest forward wall
     int collider = 0;
     while (!collider && state->pawn.inputDirection.x) {
         float newx = roundf(state->pawn.playerPosition.x +
@@ -149,16 +149,19 @@ void TynmazeStepPawn(TynmazeState* state) {
             cosf(state->pawn.playerTurn) * state->pawn.inputDirection.x);
         collider =
             state->mapPixels[(int)(newy)*state->cubicmap.width + (int)(newx)].r;
-        /*
-        if(inputDirection.x != 0.0f) {
-                printf("newx: %f, newy: %f, turn: %f \n", newx, newy, playerTurn);
+
+				/*
+        if(state->pawn.inputDirection.x != 0.0f) {
+                TraceLog(LOG_INFO, "newx: %f, newy: %f, turn: %f \n", newx, newy, state->pawn.playerTurn);
         }
-        */
+				*/
+
         if (collider == 0) {
             state->pawn.playerPosition.x = newx;
             state->pawn.playerPosition.y = newy;
         }
-        if (IsKeyDown(KEY_LEFT_SHIFT)) {
+
+        if (true || IsKeyDown(KEY_LEFT_SHIFT)) {
             break;
         }
     }
@@ -169,10 +172,10 @@ void TynmazeStepPawn(TynmazeState* state) {
     switch (state->viewMode) {
     case TMZ_VIEW_MODE_PAWN_FP:
         state->camera.position.x =
-            distlerp(state->camera.position.x, state->pawn.playerPosition.x, 0.5);
+            lerp(state->camera.position.x, state->pawn.playerPosition.x, 0.5);
         state->camera.position.y = 0.5f;
         state->camera.position.z =
-            distlerp(state->camera.position.z, state->pawn.playerPosition.y, 0.5);
+            lerp(state->camera.position.z, state->pawn.playerPosition.y, 0.5);
         state->camera.target.x =
             state->camera.position.x + sinf(state->pawn.cameraRot);
         state->camera.target.y = state->camera.position.y;
@@ -182,12 +185,12 @@ void TynmazeStepPawn(TynmazeState* state) {
     case TMZ_VIEW_MODE_PAWN_TOPDOWN: {
         float x = state->pawn.playerPosition.x - sinf(state->pawn.cameraRot);
         float y = state->pawn.playerPosition.y - cosf(state->pawn.cameraRot);
-        state->camera.position.x = distlerp(state->camera.position.x, x, 0.5f);
+        state->camera.position.x = lerp(state->camera.position.x, x, 0.5f);
         state->camera.position.y = 3.0f;
-        state->camera.position.z = distlerp(state->camera.position.z, y, 0.5f);
-        state->camera.target.x = distlerp(state->camera.target.x, state->pawn.playerPosition.x, 0.55f);
+        state->camera.position.z = lerp(state->camera.position.z, y, 0.5f);
+        state->camera.target.x = lerp(state->camera.target.x, state->pawn.playerPosition.x, 0.55f);
         state->camera.target.y = 0.5f;
-        state->camera.target.z = distlerp(state->camera.target.z, state->pawn.playerPosition.y, 0.55f);
+        state->camera.target.z = lerp(state->camera.target.z, state->pawn.playerPosition.y, 0.55f);
         } break;
 
     }
