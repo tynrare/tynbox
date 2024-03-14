@@ -161,7 +161,7 @@ static void StepPawnAction(G231012_GameState *state, G231012_PawnState *pawn,
       continue;
     }
 
-    const dist = Vector2Length(Vector2Subtract(bot->position, pawn->position));
+    const float dist = Vector2Length(Vector2Subtract(bot->position, pawn->position));
     if (dist < 256 && SpawnBullet(state, pawn->position, bot->position)) {
       return;
     }
@@ -240,7 +240,7 @@ static void StepBots(G231012_GameState *state) {
         continue;
       }
 
-      const dist =
+      const float dist =
           Vector2Length(Vector2Subtract(bullet->position, bot->position));
       if (dist < 16) {
         bullet->alive = false;
