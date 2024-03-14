@@ -5,6 +5,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>tynbox d240314</title>
     <style>
+			body {
+				margin: 0;
+				overflow: clip;
+			}
 			.clean .db { display: none }
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
       textarea.emscripten { font-family: monospace; width: 80%; }
@@ -47,7 +51,6 @@
     </style>
   </head>
   <body class="clean">
-    <hr/>
     <figure style="overflow:visible;" id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>emscripten</strong></center></figure>
     <div class="emscripten" id="status">Downloading...</div>
     <div class="emscripten">
@@ -56,7 +59,6 @@
     <div class="emscripten_border">
       <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     </div>
-    <hr/>
     <div class="emscripten db">
       <input type="checkbox" id="resize">Resize canvas
       <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
