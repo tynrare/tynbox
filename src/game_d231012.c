@@ -34,8 +34,8 @@ G231012_GameAssets load() {
 }
 
 G231012_GameState *G231012_Init(TynStage *stage) {
-  G231012_PawnState pawnState = {(Vector2){256, 256}, V2UP, (Vector2){0, 0}, 0,
-                                 V2UP};
+  G231012_PawnState pawnState = { (Vector2){256, 256}, V2UP, (Vector2){0, 0}, 0,
+                                 V2UP, 0 };
   G231012_PawnConfig pawnConfig = {7.0f, 0.05f, 0.3f, 0.1f};
 
   G231012_GameState *state = malloc(sizeof(G231012_GameState));
@@ -63,9 +63,21 @@ int G231012Step(G231012_GameState *state, int flags) {
 	// pre
 	Vector2 mousepos = GetMousePosition();
 
-	// PawnWASDControls(&pawnState, &pawnConfig);
+	if (state->pawn.control_mode == PAWN_CONTROL_MODE_POINTER && GetKeyPressed()) {
+		state->pawn.control_mode = PAWN_CONTROL_MODE_WASD;
+	} else if (state->pawn.control_mode == PAWN_CONTROL_MODE_WASD && IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+		state->pawn.control_mode = PAWN_CONTROL_MODE_POINTER;
+	}
 
-	PawnPointerControls(&state->pawn, &state->pawnConfig);
+	switch(state->pawn.control_mode) {
+		case PAWN_CONTROL_MODE_WASD:
+			PawnWASDControls(&state->pawn, &state->pawnConfig);
+			break;
+		case PAWN_CONTROL_MODE_POINTER:
+			PawnPointerControls(&state->pawn, &state->pawnConfig);
+			break;
+	}
+
 
 	state->pawn.lookDirection = Vector2Normalize(Vector2Lerp(
 		state->pawn.lookDirection,

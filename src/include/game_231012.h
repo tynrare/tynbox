@@ -7,6 +7,11 @@
 #ifndef GAME231012_H
 #define GAME231012_H
 
+typedef enum PAWN_CONTROL_MODE {
+	PAWN_CONTROL_MODE_POINTER = 0,
+	PAWN_CONTROL_MODE_WASD = 1
+} PAWN_CONTROL_MODE;
+
 typedef struct Sprite {
 	Vector2 position;
 	Vector2 anchor;
@@ -21,6 +26,7 @@ typedef struct G231012_PawnState {
 	Vector2 targetPosition;
 	float speed;
 	Vector2 lookDirection;
+	PAWN_CONTROL_MODE control_mode;
 } G231012_PawnState;
 
 typedef struct G231012_PawnConfig {
