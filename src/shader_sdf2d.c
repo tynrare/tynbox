@@ -1,4 +1,5 @@
 #include "include/shader_sdf2d.h"
+#include <math.h>
 
 const int Raymarch2dDatasetSize = 2048;
 const char* Raymarch2dfragShaderFileName = "res/shaders/tynroar-sdf.fs";

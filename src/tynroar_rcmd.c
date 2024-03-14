@@ -54,7 +54,7 @@ char* Console_ConfirmCommand(ConsoleState* state, STAGEFLAG *flags) {
   state->inputlength = 0;
   state->ready = false;
 
-  flags = *flags | CMDFLAG_BROADCAST;
+  *flags = (*flags) | CMDFLAG_BROADCAST;
 
   return state->inputcommand;
 }

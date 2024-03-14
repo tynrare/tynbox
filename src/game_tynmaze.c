@@ -1,6 +1,7 @@
 #include "include/game_tynmaze.h"
 #include "include/tyncommons.h"
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 int TynmazeDispose(TynmazeState *state);
@@ -111,7 +112,6 @@ void TynmazeStepPawn(TynmazeState* state) {
     state->pawn.inputDirection.x = 0.0f;
     state->pawn.inputDirection.y = 0.0f;
 
-    // Задаем направление по нажатию кнопки
     if (IsKeyPressed(KEY_W)) {
         state->pawn.inputDirection.x = 1.0f;
     }

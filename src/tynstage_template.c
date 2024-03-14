@@ -1,5 +1,6 @@
 #include "include/tynstage_template.h"
 #include <stddef.h>
+#include <stdlib.h>
 
 static void _dispose(TynstageTemplate0State* state);
 static STAGEFLAG _step(TynstageTemplate0State* state, STAGEFLAG flags);
@@ -10,7 +11,7 @@ TynstageTemplate0State* TynstageTemplate0Init(TynStage* stage) {
     if (state == NULL) {
         return NULL;
     }
-    _TestRender0Init(state);
+    //_TestTemplate0Init(state);
 
     stage->state = state;
     stage->frame =

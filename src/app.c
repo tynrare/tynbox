@@ -14,6 +14,8 @@ void AppDispose(AppState *state);
 static char *cmd(AppState *state, char *command, STAGEFLAG *flag);
 STAGEFLAG AppStep(AppState *state, STAGEFLAG flag);
 void AppDraw(AppState *state);
+int AppNewStage(AppState *state, void *(initfn)(TynStage *));
+int AppPushStage(AppState *state, TynStage *stage);
 
 AppState *AppInit(TynStage *stage) {
   AppState *state = malloc(sizeof(AppState));

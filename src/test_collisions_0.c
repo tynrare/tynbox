@@ -196,8 +196,8 @@ void _draw(TestCollisions0State* state)
 
     // test boxes
     b2AABB testboxes[32] = { 0 };
-    const testboxes_origin_x = sw / 2 - 4 * 32 + 16;
-    const testboxes_origin_y = sh / 2;
+    const int testboxes_origin_x = sw / 2 - 4 * 32 + 16;
+    const int testboxes_origin_y = sh / 2;
     for (int i = 0; i < 32; i++) {
         float x = testboxes_origin_x + (((i / 8) + i * 2) % 8) * 32 - 16;
         float y = testboxes_origin_y + (i / 8) * 32 - 16;

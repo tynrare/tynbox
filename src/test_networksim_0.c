@@ -4,6 +4,7 @@
 #include <raymath.h>
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
 void TestNetworksim0Dispose(TestNetworksim0State* state);
 STAGEFLAG TestNetworksim0Step(TestNetworksim0State* state, STAGEFLAG flags);
@@ -66,8 +67,6 @@ Vector2 getPathPos(TestNetworksim0Path* path, float progress) {
 TestNetworksim0State* TestNetworksim0Init(TynStage* stage) {
     TestNetworksim0State* state = malloc(sizeof(TestNetworksim0State));
 
-    state->inputonce = false;
-
     state->move1.timestamp = GetTime();
     state->move1.speed = 50;
     state->move1.path = makePath(5);
@@ -105,24 +104,6 @@ STAGEFLAG TestNetworksim0Step(TestNetworksim0State* state, STAGEFLAG flags)
     }
     if (getMoveProgress(&state->move2, GetTime()) >= 1) {
         state->move2.timestamp = GetTime();
-    }
-
-
-    bool inputed = false;
-
-    if (isAnyKeyPressed(1, KEY_E)) {
-        inputed = true;
-    }
-    else {
-        state->inputonce = true;
-    }
-
-    if (state->inputonce) {
-        // inputs
-    }
-
-    if (inputed) {
-        state->inputonce = false;
     }
 
     return flags;

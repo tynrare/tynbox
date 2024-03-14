@@ -21,7 +21,6 @@ typedef struct {
 } TestNetworksim0MoveAction;
 
 typedef struct {
-	bool inputonce;
 	double elapsed;
 	TestNetworksim0MoveAction move1;
 	TestNetworksim0MoveAction move2;
