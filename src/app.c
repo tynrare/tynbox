@@ -6,6 +6,7 @@
 #include "include/test_shader_0.h"
 //#include "include/test_physics_0.h"
 #include "include/test_collisions_0.h"
+#include "include/game_platformer_0.h"
 #include "include/tyncommons.h"
 #include <stdlib.h>
 #include <string.h>
@@ -24,8 +25,9 @@ AppState *AppInit(TynStage *stage) {
   stage->frame = (TynFrame){&AppDispose, &AppStep, &AppDraw};
 
   AppNewStage(state, Console_Init);
-  //AppNewStage(state, G231012_Init);
-  AppNewStage(state, TestShader0Init);
+  AppNewStage(state, G231012_Init);
+  //AppNewStage(state, GamePlatformer0Init);
+  //AppNewStage(state, TestShader0Init);
   // AppNewStage(state, TestRender0Init);
   // AppNewStage(state, TynmazeInit);
   // AppNewStage(state, TestPhysics0Init);
@@ -83,7 +85,7 @@ static char *cmd(AppState *state, char *command, STAGEFLAG *flags) {
   } else if (strcmp(command, "?") == 0) {
     return "type: time\ntype: run game0\ntype: run maze\ntype: run "
            "shadertest0\ntype: run networktest0\ntype: run rendertest0\ntype: "
-           "run collisiontest0\ntype: stopgame";
+           "run collisiontest0\ntype: run platformer0\ntype: stopgame";
   } else if (strcmp(command, "time") == 0) {
     return "4:20";
   } else if (strcmp(command, "run game0") == 0) {
@@ -110,7 +112,11 @@ static char *cmd(AppState *state, char *command, STAGEFLAG *flags) {
     AppCleanupStages(state);
     AppNewStage(state, TestCollisions0Init);
     return "wip physics test";
-  } else if (strcmp(command, "stopgame") == 0) {
+  } else if (strcmp(command, "run platformer0") == 0) {
+    AppCleanupStages(state);
+    AppNewStage(state, GamePlatformer0Init);
+    return "platformer test";
+  }else if (strcmp(command, "stopgame") == 0) {
     AppCleanupStages(state);
   }
 

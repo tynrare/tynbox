@@ -11,7 +11,6 @@ TynstageTemplate0State* TynstageTemplate0Init(TynStage* stage) {
     if (state == NULL) {
         return NULL;
     }
-    //_TestTemplate0Init(state);
 
     stage->state = state;
     stage->frame =
