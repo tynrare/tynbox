@@ -1,4 +1,5 @@
 #include "include/game_231012.h"
+#include "include/tyncommons.h"
 #include <stdlib.h>
 
 #ifndef V2CENTER
@@ -125,9 +126,9 @@ static bool SpawnBullet(G231012_GameState *state, Vector2 position,
     const Vector2 direction =
         Vector2Normalize(Vector2Subtract(target_shifted, position));
 
-		if (Vector2Distance(direction, state->pawn.lookDirection) > 0.1) {
-			continue;
-		}
+    if (Vector2Distance(direction, state->pawn.lookDirection) > 0.1) {
+      continue;
+    }
 
     bullet->alive = true;
     bullet->position = position;
@@ -143,7 +144,7 @@ static bool SpawnBullet(G231012_GameState *state, Vector2 position,
     return true;
   }
 
-	return false;
+  return false;
 }
 
 static void StepPawnAction(G231012_GameState *state, G231012_PawnState *pawn,
@@ -161,7 +162,8 @@ static void StepPawnAction(G231012_GameState *state, G231012_PawnState *pawn,
       continue;
     }
 
-    const float dist = Vector2Length(Vector2Subtract(bot->position, pawn->position));
+    const float dist =
+        Vector2Length(Vector2Subtract(bot->position, pawn->position));
     if (dist < 256 && SpawnBullet(state, pawn->position, bot->position)) {
       return;
     }
@@ -284,8 +286,11 @@ static int G231012Step(G231012_GameState *state, int flags) {
   }
   state->pawn.lookAt = closest_target;
 
+  float locationmark_scale = 1;
+
   switch (state->pawn.control_mode) {
   case PAWN_CONTROL_MODE_WASD:
+    locationmark_scale = 0;
     PawnWASDControls(&state->pawn, &state->pawnConfig);
     break;
   case PAWN_CONTROL_MODE_POINTER:
@@ -301,7 +306,9 @@ static int G231012Step(G231012_GameState *state, int flags) {
   state->assets.crosshair.position = mousepos;
   state->assets.locationmark.position = state->pawn.targetPosition;
   state->assets.locationmark.rotation += 1;
-  state->assets.locationmark.scale = 1.1 + sinf(GetTime()) * 0.1;
+  state->assets.locationmark.scale =
+      lerp(state->assets.locationmark.scale,
+           (1.1 + sinf(GetTime()) * 0.1) * locationmark_scale, 0.2);
 
   return flags;
 }
