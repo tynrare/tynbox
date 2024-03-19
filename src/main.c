@@ -1,8 +1,5 @@
 #include "raylib.h"
-#include "raymath.h"
 #include "include/app.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 #if defined(PLATFORM_WEB)
 #include <emscripten/emscripten.h>
@@ -27,7 +24,7 @@ int main() {
   // Initialization
   //--------------------------------------------------------------------------------------
 
-    // SetConfigFlags(FLAG_MSAA_4X_HINT); // Set MSAA 4X hint before windows
+  //SetConfigFlags(FLAG_MSAA_4X_HINT); // Set MSAA 4X hint before windows
     //  creation
 
   InitWindow(screenWidth, screenHeight, "tynbox 240310");

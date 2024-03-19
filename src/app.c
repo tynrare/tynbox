@@ -1,5 +1,6 @@
 #include "include/app.h"
 #include "include/game_231012.h"
+#include "include/draft0.h"
 #include "include/game_tynmaze.h"
 #include "include/test_networksim_0.h"
 #include "include/test_render_0.h"
@@ -25,7 +26,8 @@ AppState *AppInit(TynStage *stage) {
   stage->frame = (TynFrame){&AppDispose, &AppStep, &AppDraw};
 
   AppNewStage(state, Console_Init);
-  AppNewStage(state, G231012_Init);
+  //AppNewStage(state, G231012_Init);
+  AppNewStage(state, draft0_init);
   //AppNewStage(state, GamePlatformer0Init);
   //AppNewStage(state, TestShader0Init);
   // AppNewStage(state, TestRender0Init);

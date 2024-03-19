@@ -1,7 +1,6 @@
 #include "raylib.h"
 #include "tynroar_lib.h"
-
-#define DEBUG 0
+#include "game_base.h"
 
 #ifndef GAME231012_H
 #define GAME231012_H
@@ -11,13 +10,6 @@ typedef enum PAWN_CONTROL_MODE {
 	PAWN_CONTROL_MODE_WASD = 1
 } PAWN_CONTROL_MODE;
 
-typedef struct Sprite {
-	Vector2 position;
-	Vector2 anchor;
-	Texture2D texture;
-	float rotation;
-	float scale;
-} Sprite;
 
 typedef struct G231012_PawnState {
 	Vector2 position;
@@ -75,10 +67,5 @@ typedef struct G231012_GameState {
 } G231012_GameState;
 
 G231012_GameState *G231012_Init(TynStage *stage);
-
-Sprite SpriteLoad(const char* fileName);
-Sprite SpriteCreate(Texture2D texture);
-void SpriteInit(Sprite *s, Texture2D texture);
-void SpriteDraw(Sprite* sprite);
 
 #endif
