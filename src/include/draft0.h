@@ -6,6 +6,8 @@
 
 typedef struct {
 	Camera2D camera;
+	Camera3D camera3d;
+	double elapsed;
 	RenderTexture render_target;
 } Draft0State;
 
