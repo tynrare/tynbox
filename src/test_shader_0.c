@@ -105,10 +105,10 @@ void TestShader0Draw(TestShader0State *state) {
 	return;
 #endif
 
-  int resolutionLoc = GetShaderLocation(state->shader, "resolution");
-  int mouseLoc = GetShaderLocation(state->shader, "mouse");
-  int timeLoc = GetShaderLocation(state->shader, "time");
-  int datasetLoc = GetShaderLocation(state->shader, "dataset");
+	GetShaderLocation(state->shader, "resolution");
+	GetShaderLocation(state->shader, "mouse");
+	GetShaderLocation(state->shader, "time");
+	GetShaderLocation(state->shader, "dataset");
 
   Raymarch2dDraw(&state->texdataset, &state->shader);
 

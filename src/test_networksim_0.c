@@ -3,7 +3,6 @@
 #include <assert.h>
 #include <raymath.h>
 #include <math.h>
-#include <stdio.h>
 #include <string.h>
 
 void TestNetworksim0Dispose(TestNetworksim0State* state);
@@ -36,7 +35,8 @@ void writePathPoint(TestNetworksim0Path *path, Vector2 point) {
 }
 
 Vector2 getPathPos(TestNetworksim0Path* path, float progress) {
-    assert(("Path requires at least 2 points", path->points_count > 1));
+	 // "Path requires at least 2 points"
+    assert(path->points_count > 1);
 
     float len = 0;
     float progress_len = fmax(0, progress * path->total_length);

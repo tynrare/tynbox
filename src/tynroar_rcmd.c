@@ -61,6 +61,8 @@ char* Console_ConfirmCommand(ConsoleState* state, STAGEFLAG *flags) {
 
 char *Console_Print(ConsoleState* state, char* message) {
   strcpy(state->outputstring, message);
+
+	return message;
 }
 
 void Console_UpdateDrawFrame(ConsoleState *state) {
