@@ -38,7 +38,7 @@ static void _draw(Draft0State *state) {
   BeginMode2D(state->camera);
 
   // DrawRectangle(0, 0, 16, 16, RED);
-  Rectangle rec = (Rectangle){0, -sinf(GetTime() * 4) * 8, center.x * 2, center.y * 2};
+  Rectangle rec = (Rectangle){0, 0, center.x * 2, center.y * 2};
   DrawRectangleRoundedLines(rec, 0.4, 4, 4, RED);
 
   EndMode2D();
