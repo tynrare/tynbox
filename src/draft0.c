@@ -38,13 +38,14 @@ static STAGEFLAG _step(Draft0State *state, STAGEFLAG flags) {
 }
 static void _draw(Draft0State *state) {
   BeginTextureMode(state->render_target);
-  ClearBackground(RAYWHITE);
+  ClearBackground(BLANK);
 
   BeginMode2D(state->camera);
 
   // DrawRectangle(0, 0, 16, 16, RED);
-  Rectangle rec = (Rectangle){RENDER_WIDTH / 4, RENDER_HEIGHT / 4,
-                              RENDER_WIDTH / 2, RENDER_HEIGHT / 2};
+	int rec_pad = 4;
+  Rectangle rec = (Rectangle){rec_pad, rec_pad,
+                              RENDER_WIDTH - rec_pad * 2, RENDER_HEIGHT - rec_pad * 2};
   DrawRectangleRounded(rec, 0.2, 4, BLUE);
 
   EndMode2D();
@@ -61,7 +62,7 @@ static void _draw(Draft0State *state) {
 
   EndTextureMode();
 
-  ClearBackground(RAYWHITE);
+  ClearBackground(BLANK);
 
   float w = GetScreenWidth();
   float h = GetScreenHeight();

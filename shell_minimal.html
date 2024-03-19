@@ -5,16 +5,23 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>tynbox d240314</title>
     <style>
-			body {
+			html, body {
+				width: 100vw;
+				height: 100vh;
 				margin: 0;
 				overflow: clip;
+				display: flex;
+				flex-direction: column;
+			}
+			.root {
+				margin: auto;
 			}
 			.clean .db { display: none }
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
       textarea.emscripten { font-family: monospace; width: 80%; }
       div.emscripten { text-align: center; }
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas.emscripten { border: 0px none; background-color: black; }
+      canvas.emscripten { border: 0px none; }
 
       .spinner {
         height: 50px;
@@ -56,7 +63,7 @@
     <div class="emscripten">
       <progress value="0" max="100" id="progress" hidden=1></progress>  
     </div>
-    <div class="emscripten_border">
+    <div class="root emscripten_border">
       <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     </div>
     <div class="emscripten db">
