@@ -1,5 +1,6 @@
 #include "include/game_231012.h"
 #include "include/tyncommons.h"
+#include "raymath.h"
 #include <stdlib.h>
 
 #ifndef V2CENTER
@@ -63,7 +64,7 @@ G231012_GameState *G231012_Init(TynStage *stage) {
   state->bots =
       (G231012_PawnState *)MemAlloc(sizeof(G231012_PawnState) * BOTS_COUNT);
   state->bot_sprites = (Sprite *)MemAlloc(sizeof(Sprite) * BOTS_COUNT);
-  state->bullets = (G231012_PawnState *)MemAlloc(sizeof(G231012_BulletState) *
+  state->bullets = (G231012_BulletState *)MemAlloc(sizeof(G231012_BulletState) *
                                                  BULLETS_COUNT);
   state->bullet_sprites = (Sprite *)MemAlloc(sizeof(Sprite) * BULLETS_COUNT);
 
@@ -422,7 +423,7 @@ Sprite SpriteCreate(Texture2D texture) {
   return s;
 }
 
-Sprite SpriteInit(Sprite *s, Texture2D texture) {
+void SpriteInit(Sprite *s, Texture2D texture) {
   s->position = (Vector2){0.0, 0.0};
   s->anchor = (Vector2){0.5, 0.5};
   s->rotation = 0.0;

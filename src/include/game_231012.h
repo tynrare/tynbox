@@ -1,5 +1,4 @@
 #include "raylib.h"
-#include "raymath.h"
 #include "tynroar_lib.h"
 
 #define DEBUG 0
@@ -79,7 +78,7 @@ G231012_GameState *G231012_Init(TynStage *stage);
 
 Sprite SpriteLoad(const char* fileName);
 Sprite SpriteCreate(Texture2D texture);
-Sprite SpriteInit(Sprite *s, Texture2D texture);
+void SpriteInit(Sprite *s, Texture2D texture);
 void SpriteDraw(Sprite* sprite);
 
 #endif
