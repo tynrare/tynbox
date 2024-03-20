@@ -278,12 +278,16 @@ DrawCubeWires((Vector3){0, sin(state->elapsed) * 0.2, 0}, cubesize, cubesize,
 }
 
 static void _draw(Editor0State *state) {
+  float w = GetScreenWidth();
+  float h = GetScreenHeight();
+  float ratio = h / w;
+
 #if DEFERRED_RENDER_ENABLED
   ClearBackground(BLANK);
   BeginDrawDeferredRender(&state->deferred_render, state->camera3d);
   _drawBrushBoxes(state);
-  EndDrawDeferredRender(&state->deferred_render, state->camera3d, RENDER_WIDTH,
-                        RENDER_HEIGHT, DEFERRED_SHADING);
+  EndDrawDeferredRender(&state->deferred_render, state->camera3d, w, h,
+                        DEFERRED_SHADING);
 
   BeginMode3D(state->camera3d);
 
@@ -302,6 +306,7 @@ static void _draw(Editor0State *state) {
 
   BeginMode3D(state->camera3d);
 
+  _drawBrushBoxes(state);
   _draw3d(state);
 
   EndMode3D();
@@ -310,12 +315,8 @@ static void _draw(Editor0State *state) {
 
   ClearBackground(BLANK);
 
-  float w = GetScreenWidth();
-  float h = GetScreenHeight();
-  float ratio = h / w;
   Rectangle source = (Rectangle){0, 0, RENDER_WIDTH, -RENDER_HEIGHT};
-  Rectangle dest =
-      (Rectangle){(w - w * ratio) / 2, 0, w * ratio, GetScreenHeight()};
+  Rectangle dest = (Rectangle){(w - w * ratio) / 2, 0, w * ratio, h};
   DrawTexturePro(state->render_target.texture, source, dest, (Vector2){0, 0}, 0,
                  WHITE);
 #endif

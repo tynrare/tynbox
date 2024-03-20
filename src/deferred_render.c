@@ -2,7 +2,6 @@
 // https://github.com/raysan5/raylib/blob/master/examples/shaders/shaders_deferred_render.c
 
 #include "include/deferred_render.h"
-#include "raymath.h"
 #include "rlgl.h"
 #include <stdlib.h>
 
@@ -10,6 +9,9 @@
 #include "external/rlights.h"
 
 void LoadDeferredRender(DeferredRenderState *state, int width, int height) {
+  state->width = width;
+  state->height = width;
+  state->render_target = LoadRenderTexture(width, height);
   // Load geometry buffer (G-buffer) shader and deferred shader
   state->gbufferShader =
       LoadShader("res/shaders/gbuffer.vs", "res/shaders/gbuffer.fs");
@@ -73,10 +75,12 @@ void LoadDeferredRender(DeferredRenderState *state, int width, int height) {
   // earlier bound our textures to.
   rlEnableShader(state->deferredShader.id);
 
-  rlSetUniformSampler(rlGetLocationUniform(state->deferredShader.id, "gPosition"), 0);
-  rlSetUniformSampler(rlGetLocationUniform(state->deferredShader.id, "gNormal"), 1);
-  rlSetUniformSampler(rlGetLocationUniform(state->deferredShader.id, "gAlbedoSpec"),
-                      2);
+  rlSetUniformSampler(
+      rlGetLocationUniform(state->deferredShader.id, "gPosition"), 0);
+  rlSetUniformSampler(rlGetLocationUniform(state->deferredShader.id, "gNormal"),
+                      1);
+  rlSetUniformSampler(
+      rlGetLocationUniform(state->deferredShader.id, "gAlbedoSpec"), 2);
 
   rlDisableShader();
 
@@ -96,6 +100,7 @@ void UnloadDeferredRender(DeferredRenderState *state) {
 }
 
 void BeginDrawDeferredRender(DeferredRenderState *state, Camera camera) {
+  BeginTextureMode(state->render_target);
   float cameraPos[3] = {camera.position.x, camera.position.y,
                         camera.position.z};
   SetShaderValue(state->deferredShader,
@@ -113,16 +118,15 @@ void BeginDrawDeferredRender(DeferredRenderState *state, Camera camera) {
   // program.
   rlEnableShader(state->gbufferShader.id);
 
-	// --->> 
+  // --->>
 }
 
 // some render code should be called inbetween
 
 void EndDrawDeferredRender(DeferredRenderState *state, Camera camera, int width,
                            int height, DeferredRenderMode mode) {
+  // <<---
 
-	// <<---
-	
   rlDisableShader();
   EndMode3D();
   rlEnableColorBlend();
@@ -130,6 +134,13 @@ void EndDrawDeferredRender(DeferredRenderState *state, Camera camera, int width,
   // Go back to the default framebuffer (0) and draw our deferred shading.
   rlDisableFramebuffer();
   rlClearScreenBuffers(); // Clear color & depth buffer
+
+  // tryin to make proper resize
+  float w = width;
+  float h = height;
+  float ratio = h / w;
+  Rectangle source = (Rectangle){0, 0, state->width, -state->height};
+  Rectangle dest = (Rectangle){(w - w * ratio) / 2, 0, w * ratio, h};
 
   switch (mode) {
   case DEFERRED_SHADING: {
@@ -157,9 +168,12 @@ void EndDrawDeferredRender(DeferredRenderState *state, Camera camera, int width,
     // the default framebuffer.
     rlBindFramebuffer(RL_READ_FRAMEBUFFER, state->gbuffer.framebuffer);
     rlBindFramebuffer(RL_DRAW_FRAMEBUFFER, 0);
-    rlBlitFramebuffer(0, 0, width, height, 0, 0, width, height,
+    rlBlitFramebuffer(0, 0, state->width, state->height, 0, 0, state->width, state->height,
                       0x00000100); // GL_DEPTH_BUFFER_BIT
     rlDisableFramebuffer();
+
+		EndTextureMode();
+    DrawTexturePro(state->render_target.texture, source, dest, (Vector2){0, 0}, 0, WHITE);
 
     /*
 BeginMode3D(camera);
@@ -169,40 +183,40 @@ rlDisableShader();
 EndMode3D();
     */
 
-    //DrawText("FINAL RESULT", 10, height - 30, 20, DARKGREEN);
+    // DrawText("FINAL RESULT", 10, height - 30, 20, DARKGREEN);
   } break;
   case DEFERRED_POSITION: {
-    DrawTextureRec(
-        (Texture2D){
-            .id = state->gbuffer.positionTexture,
-            .width = width,
-            .height = height,
-        },
-        (Rectangle){0, 0, width, -height}, Vector2Zero(), RAYWHITE);
+		EndTextureMode();
+    Texture2D texture = (Texture2D){
+        .id = state->gbuffer.positionTexture,
+        .width = state->width,
+        .height = state->height,
+    };
+    DrawTexturePro(texture, source, dest, (Vector2){0, 0}, 0, WHITE);
 
-    //DrawText("POSITION TEXTURE", 10, height - 30, 20, DARKGREEN);
+    // DrawText("POSITION TEXTURE", 10, height - 30, 20, DARKGREEN);
   } break;
   case DEFERRED_NORMAL: {
-    DrawTextureRec(
-        (Texture2D){
-            .id = state->gbuffer.normalTexture,
-            .width = width,
-            .height = height,
-        },
-        (Rectangle){0, 0, width, -height}, Vector2Zero(), RAYWHITE);
+		EndTextureMode();
+    Texture2D texture = (Texture2D){
+        .id = state->gbuffer.normalTexture,
+        .width = state->width,
+        .height = state->height,
+    };
+    DrawTexturePro(texture, source, dest, (Vector2){0, 0}, 0, WHITE);
 
-    //DrawText("NORMAL TEXTURE", 10, height - 30, 20, DARKGREEN);
+    // DrawText("NORMAL TEXTURE", 10, height - 30, 20, DARKGREEN);
   } break;
   case DEFERRED_ALBEDO: {
-    DrawTextureRec(
-        (Texture2D){
-            .id = state->gbuffer.albedoSpecTexture,
-            .width = width,
-            .height = height,
-        },
-        (Rectangle){0, 0, width, -height}, Vector2Zero(), RAYWHITE);
+		EndTextureMode();
+    Texture2D texture = (Texture2D){
+        .id = state->gbuffer.albedoSpecTexture,
+        .width = state->width,
+        .height = state->height,
+    };
+    DrawTexturePro(texture, source, dest, (Vector2){0, 0}, 0, WHITE);
 
-    //DrawText("ALBEDO TEXTURE", 10, height - 30, 20, DARKGREEN);
+    // DrawText("ALBEDO TEXTURE", 10, height - 30, 20, DARKGREEN);
   } break;
   default:
     break;

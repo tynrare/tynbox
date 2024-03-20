@@ -17,6 +17,14 @@ typedef struct DeferredRenderState {
 	DeferredRenderGBuffer gbuffer;
 	Shader gbufferShader;
 	Shader deferredShader;
+
+	// attemptin to make proper texture scaling
+	// mostly just stores sizes and forces to draw framebuffer
+	// by BeginTextureMode
+	RenderTexture2D render_target;
+
+	int width;
+	int height;
 } DeferredRenderState;
 
 typedef enum {
