@@ -43,9 +43,9 @@ Editor0State *editor0_init(TynStage *stage) {
   state->camera3d.position = (Vector3){1, 1, 1};
   state->camera3d.target = (Vector3){0, 0, 0};
   state->camera3d.up = (Vector3){0, 1, 0};
-  // state->camera3d.projection = CAMERA_ORTHOGRAPHIC;
+  //state->camera3d.projection = CAMERA_ORTHOGRAPHIC;
   state->camera3d.projection = CAMERA_PERSPECTIVE;
-  state->camera3d.fovy = 54;
+  state->camera3d.fovy = 45;
 
   stage->state = state;
   stage->frame = (TynFrame){&_dispose, &_step, &_draw};
@@ -228,7 +228,7 @@ static void _drawBrushBoxes(Editor0State *state) {
 }
 
 static void _draw3d(Editor0State *state) {
-  DrawGrid(10, 0.1f);
+  //DrawGrid(10, 0.1f);
 
   if (state->pointer_collision.hit) {
     DrawCube(state->pointer_collision.point, 0.01, 0.01, 0.01, RED);

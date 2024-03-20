@@ -143,9 +143,10 @@ void EndDrawDeferredRender(DeferredRenderState *state, Camera camera, int width,
   Rectangle source = (Rectangle){0, 0, state->width, -state->height};
   Rectangle dest = (Rectangle){(w - w * ratio) / 2, 0, w * ratio, h};
 
+	// fixes context draw size
 	rlViewport(dest.x, dest.y, dest.width, dest.height);
-	//rlSetFramebufferWidth(dest.width);
-	//rlSetFramebufferHeight(dest.height);
+	rlSetFramebufferWidth(dest.width);
+	rlSetFramebufferHeight(dest.height);
 
   switch (mode) {
   case DEFERRED_SHADING: {
@@ -173,13 +174,10 @@ void EndDrawDeferredRender(DeferredRenderState *state, Camera camera, int width,
     // the default framebuffer.
     rlBindFramebuffer(RL_READ_FRAMEBUFFER, state->gbuffer.framebuffer);
     rlBindFramebuffer(RL_DRAW_FRAMEBUFFER, 0);
-    rlBlitFramebuffer(0, 0, state->width, state->height, 0, 0, state->width, state->height,
+    rlBlitFramebuffer(0, 0, state->width, state->height, 0, 0, dest.width, dest.height,
                       0x00000100); // GL_DEPTH_BUFFER_BIT
     rlDisableFramebuffer();
 
-		// This begins-ends texture mode should resize draw contexts
-		// donno work
-    //DrawTexturePro(state->render_target.texture, source, dest, (Vector2){0, 0}, 0, WHITE);
 
     /*
 BeginMode3D(camera);
@@ -228,5 +226,7 @@ EndMode3D();
 	rlViewport(0, 0, w, h);
 	rlSetFramebufferWidth(w);
 	rlSetFramebufferHeight(h);
+	// This begins-ends texture mode should resize draw contexts
+	// donno work
 	EndTextureMode();
 }
