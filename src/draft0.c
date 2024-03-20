@@ -20,7 +20,7 @@ Draft0State *draft0_init(TynStage *stage) {
   state->camera3d.target = (Vector3){0, 0, 0};
   state->camera3d.up = (Vector3){0, 1, 0};
   state->camera3d.projection = CAMERA_ORTHOGRAPHIC;
-  state->camera3d.fovy = 2;
+  state->camera3d.fovy = 1;
 
   stage->state = state;
   stage->frame = (TynFrame){&_dispose, &_step, &_draw};
