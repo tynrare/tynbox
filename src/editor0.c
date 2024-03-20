@@ -7,6 +7,7 @@ static void _dispose(Editor0State *state);
 static STAGEFLAG _step(Editor0State *state, STAGEFLAG flags);
 static void _draw(Editor0State *state);
 
+#define FLT_MAX     340282346638528859811704183484516925440.0f     // Maximum value of a float, from bit pattern 01111111011111111111111111111111
 #define RENDER_WIDTH 512.0f
 #define RENDER_HEIGHT 512.0f
 #define BOXES_AMOUNT 16
@@ -41,9 +42,39 @@ static void _dispose(Editor0State *state) {
   return;
 }
 
+static RayCollision _test_ray_boxes(Editor0State *state) {
+  Ray ray = GetScreenToWorldRay(GetMousePosition(), state->camera3d);
+  RayCollision box_hit_info = {0};
+	box_hit_info.distance = FLT_MAX;
+  for (int i = 0; i < BOXES_AMOUNT; i++) {
+    BrushBox *brush = &state->brush_boxes[i];
+    if (!brush->active) {
+			continue;
+    }
+
+		BoundingBox *box = &brush->box;
+		RayCollision rc = GetRayCollisionBox(ray, *box);
+		if (rc.hit && rc.distance < box_hit_info.distance) {
+			box_hit_info = rc;
+		}
+  }
+
+	return box_hit_info;
+}
+
 static void _step_test_ray(Editor0State *state) {
   state->pointer_collision.hit = false;
   Ray ray = GetScreenToWorldRay(GetMousePosition(), state->camera3d);
+
+  if (state->edit_draw_mode == EDIT_DRAW_MODE_NONE) {
+		RayCollision box_hit_info = _test_ray_boxes(state);
+		if (box_hit_info.hit) {
+			state->pointer_collision = box_hit_info;
+
+			return;
+		}
+	}
+
   RayCollision plane_hit_info = {0};
 
   Vector3 g0 = (Vector3){-50.0f, 0.0f, -50.0f};
@@ -54,15 +85,26 @@ static void _step_test_ray(Editor0State *state) {
   if (state->edit_draw_mode == EDIT_DRAW_MODE_NONE) {
     plane_hit_info = GetRayCollisionQuad(ray, g0, g1, g2, g3);
   } else if (state->edit_draw_mode == EDIT_DRAW_MODE_LEN) {
-    // will use non-default plane
+		Vector3 axis = Vector3CrossProduct(state->edit_draw_normal, (Vector3){0,1,0});
+		if (Vector3Length(axis)) {
+			g0 = Vector3RotateByAxisAngle(g0, axis, 90 * DEG2RAD);
+			g1 = Vector3RotateByAxisAngle(g1, axis, 90 * DEG2RAD);
+			g2 = Vector3RotateByAxisAngle(g2, axis, 90 * DEG2RAD);
+			g3 = Vector3RotateByAxisAngle(g3, axis, 90 * DEG2RAD);
+		}
+    g0 = Vector3Add(g0, state->edit_draw_points[0]);
+    g1 = Vector3Add(g1, state->edit_draw_points[0]);
+    g2 = Vector3Add(g2, state->edit_draw_points[0]);
+    g3 = Vector3Add(g3, state->edit_draw_points[0]);
     plane_hit_info = GetRayCollisionQuad(ray, g0, g1, g2, g3);
   } else if (state->edit_draw_mode == EDIT_DRAW_MODE_HEIGHT) {
-    Vector3 axis = {1, 0, 0};
-    g0 = Vector3RotateByAxisAngle(g0, axis, 90 * DEG2RAD);
-    g1 = Vector3RotateByAxisAngle(g1, axis, 90 * DEG2RAD);
-    g2 = Vector3RotateByAxisAngle(g2, axis, 90 * DEG2RAD);
-    g3 = Vector3RotateByAxisAngle(g3, axis, 90 * DEG2RAD);
-		TraceLog(LOG_INFO, "%f,%f,%f", g0.x, g0.y, g0.z);
+		Vector3 axis = Vector3CrossProduct(state->edit_draw_normal, (Vector3){1,0,0});
+		if (Vector3Length(axis)) {
+			g0 = Vector3RotateByAxisAngle(g0, axis, 90 * DEG2RAD);
+			g1 = Vector3RotateByAxisAngle(g1, axis, 90 * DEG2RAD);
+			g2 = Vector3RotateByAxisAngle(g2, axis, 90 * DEG2RAD);
+			g3 = Vector3RotateByAxisAngle(g3, axis, 90 * DEG2RAD);
+		}
     g0 = Vector3Add(g0, state->edit_draw_points[1]);
     g1 = Vector3Add(g1, state->edit_draw_points[1]);
     g2 = Vector3Add(g2, state->edit_draw_points[1]);
@@ -140,12 +182,17 @@ static void _draw2d(Editor0State *state) { return; }
 
 static void _drawBrushBoxes(Editor0State *state) {
   for (int i = 0; i < BOXES_AMOUNT; i++) {
-    BrushBox *box = &state->brush_boxes[i];
-    if (!box->active) {
+    BrushBox *brush = &state->brush_boxes[i];
+    if (!brush->active) {
       continue;
     }
+		BoundingBox *box = &brush->box;
 
-    DrawBoundingBox(box->box, BLUE);
+    float w = box->max.x - box->min.x;
+    float h = box->max.y - box->min.y;
+    float l = box->max.z - box->min.z;
+    Vector3 center = Vector3Scale(Vector3Add(box->min, box->max), 0.5); 
+		DrawCube(center, w, h, l, BLUE);
   }
 }
 
@@ -156,6 +203,12 @@ static void _draw3d(Editor0State *state) {
 
   if (state->pointer_collision.hit) {
     DrawCube(state->pointer_collision.point, 0.01, 0.01, 0.01, RED);
+
+		Ray r = {0};
+		r.position = state->pointer_collision.point;
+
+		r.direction = state->pointer_collision.normal;
+		DrawRay(r, MAGENTA);
   }
 
   if (state->edit_draw_mode != EDIT_DRAW_MODE_NONE) {
