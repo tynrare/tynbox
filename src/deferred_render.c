@@ -101,6 +101,7 @@ void UnloadDeferredRender(DeferredRenderState *state) {
 
 void BeginDrawDeferredRender(DeferredRenderState *state, Camera camera) {
   BeginTextureMode(state->render_target);
+
   float cameraPos[3] = {camera.position.x, camera.position.y,
                         camera.position.z};
   SetShaderValue(state->deferredShader,
@@ -142,6 +143,10 @@ void EndDrawDeferredRender(DeferredRenderState *state, Camera camera, int width,
   Rectangle source = (Rectangle){0, 0, state->width, -state->height};
   Rectangle dest = (Rectangle){(w - w * ratio) / 2, 0, w * ratio, h};
 
+	rlViewport(dest.x, dest.y, dest.width, dest.height);
+	//rlSetFramebufferWidth(dest.width);
+	//rlSetFramebufferHeight(dest.height);
+
   switch (mode) {
   case DEFERRED_SHADING: {
     BeginMode3D(camera);
@@ -172,8 +177,9 @@ void EndDrawDeferredRender(DeferredRenderState *state, Camera camera, int width,
                       0x00000100); // GL_DEPTH_BUFFER_BIT
     rlDisableFramebuffer();
 
-		EndTextureMode();
-    DrawTexturePro(state->render_target.texture, source, dest, (Vector2){0, 0}, 0, WHITE);
+		// This begins-ends texture mode should resize draw contexts
+		// donno work
+    //DrawTexturePro(state->render_target.texture, source, dest, (Vector2){0, 0}, 0, WHITE);
 
     /*
 BeginMode3D(camera);
@@ -186,7 +192,6 @@ EndMode3D();
     // DrawText("FINAL RESULT", 10, height - 30, 20, DARKGREEN);
   } break;
   case DEFERRED_POSITION: {
-		EndTextureMode();
     Texture2D texture = (Texture2D){
         .id = state->gbuffer.positionTexture,
         .width = state->width,
@@ -197,7 +202,6 @@ EndMode3D();
     // DrawText("POSITION TEXTURE", 10, height - 30, 20, DARKGREEN);
   } break;
   case DEFERRED_NORMAL: {
-		EndTextureMode();
     Texture2D texture = (Texture2D){
         .id = state->gbuffer.normalTexture,
         .width = state->width,
@@ -208,7 +212,6 @@ EndMode3D();
     // DrawText("NORMAL TEXTURE", 10, height - 30, 20, DARKGREEN);
   } break;
   case DEFERRED_ALBEDO: {
-		EndTextureMode();
     Texture2D texture = (Texture2D){
         .id = state->gbuffer.albedoSpecTexture,
         .width = state->width,
@@ -221,4 +224,9 @@ EndMode3D();
   default:
     break;
   }
+
+	rlViewport(0, 0, w, h);
+	rlSetFramebufferWidth(w);
+	rlSetFramebufferHeight(h);
+	EndTextureMode();
 }

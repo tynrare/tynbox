@@ -13,8 +13,8 @@ static void _draw(Editor0State *state);
   340282346638528859811704183484516925440.0f // Maximum value of a float, from
                                              // bit pattern
                                              // 01111111011111111111111111111111
-#define RENDER_WIDTH 512.0f
-#define RENDER_HEIGHT 512.0f
+#define RENDER_WIDTH 256.0f
+#define RENDER_HEIGHT 256.0f
 #define BOXES_AMOUNT 16
 
 #define DEFERRED_RENDER_ENABLED 1
@@ -288,13 +288,8 @@ static void _draw(Editor0State *state) {
   _drawBrushBoxes(state);
   EndDrawDeferredRender(&state->deferred_render, state->camera3d, w, h,
                         DEFERRED_SHADING);
+#endif
 
-  BeginMode3D(state->camera3d);
-
-  _draw3d(state);
-
-  EndMode3D();
-#else
   BeginTextureMode(state->render_target);
   ClearBackground(BLANK);
 
@@ -306,20 +301,19 @@ static void _draw(Editor0State *state) {
 
   BeginMode3D(state->camera3d);
 
-  _drawBrushBoxes(state);
+  //_drawBrushBoxes(state);
   _draw3d(state);
 
   EndMode3D();
 
   EndTextureMode();
 
-  ClearBackground(BLANK);
+  //ClearBackground(BLANK);
 
   Rectangle source = (Rectangle){0, 0, RENDER_WIDTH, -RENDER_HEIGHT};
   Rectangle dest = (Rectangle){(w - w * ratio) / 2, 0, w * ratio, h};
   DrawTexturePro(state->render_target.texture, source, dest, (Vector2){0, 0}, 0,
                  WHITE);
-#endif
 
   return;
 }

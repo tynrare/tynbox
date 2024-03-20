@@ -27,7 +27,7 @@ int main() {
   //SetConfigFlags(FLAG_MSAA_4X_HINT); // Set MSAA 4X hint before windows
     //  creation
 
-  InitWindow(screenWidth, screenHeight, "tynbox 240310");
+  InitWindow(512, 512, "tynbox 240310");
 
   state = AppInit(&stage);
   active = true;
