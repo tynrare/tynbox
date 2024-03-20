@@ -24,6 +24,7 @@ typedef struct {
 	RayCollision pointer_collision;
 	EditDrawMode edit_draw_mode;
 	Vector3 edit_draw_normal;
+	Vector3 edit_draw_initial_normal;
 	Vector3 edit_draw_points[3];
 	BrushBox *brush_boxes;
 } Editor0State;

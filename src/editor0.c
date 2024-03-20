@@ -134,13 +134,22 @@ static void _edit_brush_confirm(Editor0State *state) {
     return;
   }
   box->active = true;
-  const Vector3 *pp1 = &state->edit_draw_points[0];
-  const Vector3 *pp2 = &state->edit_draw_points[1];
-  const Vector3 *pp3 = &state->edit_draw_points[2];
-  Vector3 min = {fminf(pp1->x, pp2->x), fminf(pp1->y, pp3->y),
-                       fminf(pp1->z, pp2->z)};
-  Vector3 max = {fmaxf(pp1->x, pp2->x), fmaxf(pp1->y, pp3->y),
-                       fmaxf(pp1->z, pp2->z)};
+	
+	// all 3 provides points
+  Vector3 *p1 = &state->edit_draw_points[0];
+  Vector3 *p2 = &state->edit_draw_points[1];
+  Vector3 *p3 = &state->edit_draw_points[2];
+	const Vector3 *n = &state->edit_draw_initial_normal;
+
+	// third point sets only one coord
+	p2->x = n->x ? p3->x : p2->x;
+	p2->y = n->y ? p3->y : p2->y;
+	p2->z = n->z ? p3->z : p2->z;
+
+  Vector3 min = {fminf(p1->x, p2->x), fminf(p1->y, p2->y),
+                       fminf(p1->z, p2->z)};
+  Vector3 max = {fmaxf(p1->x, p2->x), fmaxf(p1->y, p2->y),
+                       fmaxf(p1->z, p2->z)};
   box->box.min = min;
   box->box.max = max;
 }
@@ -159,6 +168,7 @@ static void _step_edit_brush(Editor0State *state) {
   if (state->edit_draw_mode == EDIT_DRAW_MODE_NONE) {
     state->edit_draw_points[0] = state->pointer_collision.point;
     state->edit_draw_mode = EDIT_DRAW_MODE_LEN;
+		state->edit_draw_initial_normal = state->edit_draw_normal;
   } else if (state->edit_draw_mode == EDIT_DRAW_MODE_LEN) {
     state->edit_draw_points[1] = state->pointer_collision.point;
     state->edit_draw_mode = EDIT_DRAW_MODE_HEIGHT;
@@ -203,12 +213,6 @@ static void _draw3d(Editor0State *state) {
 
   if (state->pointer_collision.hit) {
     DrawCube(state->pointer_collision.point, 0.01, 0.01, 0.01, RED);
-
-		Ray r = {0};
-		r.position = state->pointer_collision.point;
-
-		r.direction = state->pointer_collision.normal;
-		DrawRay(r, MAGENTA);
   }
 
   if (state->edit_draw_mode != EDIT_DRAW_MODE_NONE) {
@@ -218,17 +222,28 @@ static void _draw3d(Editor0State *state) {
     Vector3 center = {0};
 
     Vector3 p1 = state->edit_draw_points[0];
-    Vector3 p2 = state->edit_draw_points[1];
-    Vector3 p3 = state->pointer_collision.point;
+		Vector3 p2 = state->pointer_collision.point;
     if (state->edit_draw_mode == EDIT_DRAW_MODE_LEN) {
-      p2 = state->pointer_collision.point;
     } else if (state->edit_draw_mode == EDIT_DRAW_MODE_HEIGHT) {
+			p2 = state->edit_draw_points[1];
+			Vector3 p3 = state->pointer_collision.point;
+			Vector3 n = state->edit_draw_initial_normal;
+
+			// third point sets only one coord along axis
+			p2.x = n.x ? p3.x : p2.x;
+			p2.y = n.y ? p3.y : p2.y;
+			p2.z = n.z ? p3.z : p2.z;
     }
     w = fabs(p1.x - p2.x);
     l = fabs(p1.z - p2.z);
-    h = fabs(p1.y - p3.y);
+    h = fabs(p1.y - p2.y);
+
+		w = fmaxf(w, 0.01);
+		l = fmaxf(l, 0.01);
+		h = fmaxf(h, 0.01);
+
     center = Vector3Scale(Vector3Add(p1, p2), 0.5);
-    center.y = (p3.y + p1.y) / 2;
+    //center.y = (p2.y + p1.y) / 2;
 
     DrawCube(center, w, h, l, WHITE);
   }
