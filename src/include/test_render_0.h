@@ -1,4 +1,5 @@
 #include "tynroar_lib.h"
+#include "deferred_render.h"
 #include "raylib.h"
 
 #ifndef TEST_RENDER0_H
@@ -10,6 +11,7 @@ typedef struct {
 	Camera camera;
 	Shader shader;
 	RenderTexture2D tex_target;
+	DeferredRenderState deferred_render;
 } TestRender0State;
 
 TestRender0State* TestRender0Init(TynStage* stage);

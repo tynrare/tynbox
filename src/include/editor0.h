@@ -1,10 +1,12 @@
 #include "tynroar_lib.h"
+#include "deferred_render.h"
 #include "raylib.h"
 
 #ifndef EDITOR0_H
 #define EDITOR0_H
 
 typedef struct {
+	Matrix *transform;
 	BoundingBox box;
 	bool active;
 } BrushBox;
@@ -20,6 +22,8 @@ typedef struct {
 	Camera2D camera;
 	Camera3D camera3d;
 	double elapsed;
+
+	DeferredRenderState deferred_render;
 	RenderTexture render_target;
 	RayCollision pointer_collision;
 	EditDrawMode edit_draw_mode;
@@ -27,6 +31,9 @@ typedef struct {
 	Vector3 edit_draw_initial_normal;
 	Vector3 edit_draw_points[3];
 	BrushBox *brush_boxes;
+	Matrix *brush_boxes_transforms;
+	Mesh cube;
+	Material material;
 } Editor0State;
 
 Editor0State *editor0_init(TynStage *stage);

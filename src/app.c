@@ -32,7 +32,7 @@ AppState *AppInit(TynStage *stage) {
   AppNewStage(state, editor0_init);
   //AppNewStage(state, GamePlatformer0Init);
   //AppNewStage(state, TestShader0Init);
-  // AppNewStage(state, TestRender0Init);
+  //AppNewStage(state, TestRender0Init);
   // AppNewStage(state, TynmazeInit);
   // AppNewStage(state, TestPhysics0Init);
   // AppNewStage(state, TestCollisions0Init);
