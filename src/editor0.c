@@ -28,9 +28,22 @@ Editor0State *editor0_init(TynStage *stage) {
               state->deferred_render.deferredShader);
   state->render_target = LoadRenderTexture(RENDER_WIDTH, RENDER_HEIGHT);
   state->cube = GenMeshCube(1.0f, 1.0f, 1.0f);
-  state->material = LoadMaterialDefault();
-  state->material.shader = state->deferred_render.gbufferShader;
-  state->material.maps[MATERIAL_MAP_DIFFUSE].color = RAYWHITE;
+  state->plane = GenMeshPlane(10, 10, 1, 1);
+
+  state->assets.material_base = LoadMaterialDefault();
+  state->assets.material_base.shader = state->deferred_render.gbufferShader;
+  state->assets.material_base.maps[MATERIAL_MAP_DIFFUSE].color = RAYWHITE;
+
+  state->assets.material_second = LoadMaterialDefault();
+  state->assets.material_second.shader = state->deferred_render.gbufferShader;
+  // do not workin
+  state->assets.material_second.maps[MATERIAL_MAP_DIFFUSE].color = GREEN;
+
+  state->assets.material_tilefloor = LoadMaterialDefault();
+  state->assets.material_tilefloor.shader =
+      state->deferred_render.gbufferShader;
+  state->assets.material_tilefloor.maps[MATERIAL_MAP_DIFFUSE].texture =
+      LoadTexture("res/tilefloor.png");
 
   state->edit_draw_mode = EDIT_DRAW_MODE_NONE;
 
@@ -43,7 +56,7 @@ Editor0State *editor0_init(TynStage *stage) {
   state->camera3d.position = (Vector3){1, 1, 1};
   state->camera3d.target = (Vector3){0, 0, 0};
   state->camera3d.up = (Vector3){0, 1, 0};
-  //state->camera3d.projection = CAMERA_ORTHOGRAPHIC;
+  // state->camera3d.projection = CAMERA_ORTHOGRAPHIC;
   state->camera3d.projection = CAMERA_PERSPECTIVE;
   state->camera3d.fovy = 45;
 
@@ -136,7 +149,7 @@ static void _step_test_ray(Editor0State *state) {
   }
 }
 
-static BrushBox *getAvailableBoundingBox(Editor0State *state) {
+static BrushBox *getAvailableBrushBox(Editor0State *state) {
   for (int i = 0; i < BOXES_AMOUNT; i++) {
     BrushBox *box = &state->brush_boxes[i];
     if (!box->active) {
@@ -149,7 +162,7 @@ static BrushBox *getAvailableBoundingBox(Editor0State *state) {
 }
 
 static void _edit_brush_confirm(Editor0State *state) {
-  BrushBox *box = getAvailableBoundingBox(state);
+  BrushBox *box = getAvailableBrushBox(state);
   if (!box) {
     return;
   }
@@ -223,23 +236,33 @@ static void _drawBrushBoxes(Editor0State *state) {
     if (!brush->active) {
       continue;
     }
-    DrawMesh(state->cube, state->material, *brush->transform);
+    DrawMesh(state->cube, state->assets.material_base, *brush->transform);
   }
 }
 
 static void _draw3d(Editor0State *state) {
-  //DrawGrid(10, 0.1f);
+  // DrawGrid(10, 0.1f);
+  _drawBrushBoxes(state);
+
+  DrawMesh(state->plane, state->assets.material_tilefloor,
+           MatrixTranslate(0, 0, 0));
 
   if (state->pointer_collision.hit) {
-    DrawCube(state->pointer_collision.point, 0.01, 0.01, 0.01, RED);
+    Vector3 p = state->pointer_collision.point;
+    Matrix translation = MatrixTranslate(p.x, p.y, p.z);
+    Matrix scale = MatrixScale(0.01f, 0.01f, 0.01f);
+    Matrix transform = MatrixMultiply(scale, translation);
+    DrawMesh(state->cube, state->assets.material_second, transform);
   }
 
   if (state->edit_draw_mode != EDIT_DRAW_MODE_NONE) {
     // calculates cube dimensions based on 2-3 points
-    float h = 0;
-    float w = 0;
-    float l = 0;
-    Vector3 center = {0};
+    /*
+float h = 0;
+float w = 0;
+float l = 0;
+Vector3 center = {0};
+    */
 
     Vector3 p1 = state->edit_draw_points[0];
     Vector3 p2 = state->pointer_collision.point;
@@ -254,18 +277,32 @@ static void _draw3d(Editor0State *state) {
       p2.y = n.y ? p3.y : p2.y;
       p2.z = n.z ? p3.z : p2.z;
     }
-    w = fabs(p1.x - p2.x);
-    l = fabs(p1.z - p2.z);
-    h = fabs(p1.y - p2.y);
+    /*
+w = fabs(p1.x - p2.x);
+l = fabs(p1.z - p2.z);
+h = fabs(p1.y - p2.y);
 
+center = Vector3Scale(Vector3Add(p1, p2), 0.5);
+// center.y = (p2.y + p1.y) / 2;
+
+DrawCube(center, w, h, l, WHITE);
+    */
+
+    Vector3 min = {fminf(p1.x, p2.x), fminf(p1.y, p2.y), fminf(p1.z, p2.z)};
+    Vector3 max = {fmaxf(p1.x, p2.x), fmaxf(p1.y, p2.y), fmaxf(p1.z, p2.z)};
+
+    float w = max.x - min.x;
+    float h = max.y - min.y;
+    float l = max.z - min.z;
     w = fmaxf(w, 0.01);
     l = fmaxf(l, 0.01);
     h = fmaxf(h, 0.01);
 
-    center = Vector3Scale(Vector3Add(p1, p2), 0.5);
-    // center.y = (p2.y + p1.y) / 2;
-
-    DrawCube(center, w, h, l, WHITE);
+    Vector3 center = Vector3Scale(Vector3Add(min, max), 0.5);
+    Matrix translation = MatrixTranslate(center.x, center.y, center.z);
+    Matrix scale = MatrixScale(w, h, l);
+    Matrix transform = MatrixMultiply(scale, translation);
+    DrawMesh(state->cube, state->assets.material_second, transform);
   }
 
   /*
@@ -285,7 +322,7 @@ static void _draw(Editor0State *state) {
 #if DEFERRED_RENDER_ENABLED
   ClearBackground(BLANK);
   BeginDrawDeferredRender(&state->deferred_render, state->camera3d);
-  _drawBrushBoxes(state);
+  _draw3d(state);
   EndDrawDeferredRender(&state->deferred_render, state->camera3d, w, h,
                         DEFERRED_SHADING);
 #endif
@@ -299,16 +336,12 @@ static void _draw(Editor0State *state) {
 
   EndMode2D();
 
-  BeginMode3D(state->camera3d);
-
-  //_drawBrushBoxes(state);
-  _draw3d(state);
-
-  EndMode3D();
+  // BeginMode3D(state->camera3d);
+  // EndMode3D();
 
   EndTextureMode();
 
-  //ClearBackground(BLANK);
+  // ClearBackground(BLANK);
 
   Rectangle source = (Rectangle){0, 0, RENDER_WIDTH, -RENDER_HEIGHT};
   Rectangle dest = (Rectangle){(w - w * ratio) / 2, 0, w * ratio, h};

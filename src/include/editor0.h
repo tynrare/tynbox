@@ -19,6 +19,12 @@ typedef enum {
 } EditDrawMode;
 
 typedef struct {
+	Material material_base;
+	Material material_second;
+	Material material_tilefloor;
+} Editor0Assets;
+
+typedef struct {
 	Camera2D camera;
 	Camera3D camera3d;
 	double elapsed;
@@ -33,7 +39,8 @@ typedef struct {
 	BrushBox *brush_boxes;
 	Matrix *brush_boxes_transforms;
 	Mesh cube;
-	Material material;
+	Mesh plane;
+	Editor0Assets assets;
 } Editor0State;
 
 Editor0State *editor0_init(TynStage *stage);
