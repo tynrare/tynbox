@@ -31,7 +31,8 @@ typedef enum {
    DEFERRED_POSITION,
    DEFERRED_NORMAL,
    DEFERRED_ALBEDO,
-   DEFERRED_SHADING
+   DEFERRED_SHADING,
+	 __DEFERRED_RENDER_MODES_COUNT
 } DeferredRenderMode;
 
 void LoadDeferredRender(DeferredRenderState *state, int width, int height);

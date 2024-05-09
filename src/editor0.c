@@ -352,7 +352,6 @@ static void _draw(Editor0State *state) {
 }
 
 // --- no found GetScriinToWorldRay source binds
-
 // Get a ray trace from screen position (i.e mouse)
 Ray GetScreenToWorldRay(Vector2 position, Camera camera) {
   return GetScreenToWorldRayEx(position, camera, (float)GetScreenWidth(),

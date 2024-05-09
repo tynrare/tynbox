@@ -174,7 +174,7 @@ void EndDrawDeferredRender(DeferredRenderState *state, Camera camera, int width,
     // the default framebuffer.
     rlBindFramebuffer(RL_READ_FRAMEBUFFER, state->gbuffer.framebuffer);
     rlBindFramebuffer(RL_DRAW_FRAMEBUFFER, 0);
-    rlBlitFramebuffer(0, 0, state->width, state->height, 0, 0, dest.width, dest.height,
+    rlBlitFramebuffer(0, 0, state->width, state->height, dest.x, 0, dest.width, dest.height,
                       0x00000100); // GL_DEPTH_BUFFER_BIT
     rlDisableFramebuffer();
 
@@ -190,6 +190,7 @@ EndMode3D();
     // DrawText("FINAL RESULT", 10, height - 30, 20, DARKGREEN);
   } break;
   case DEFERRED_POSITION: {
+		EndTextureMode();
     Texture2D texture = (Texture2D){
         .id = state->gbuffer.positionTexture,
         .width = state->width,
@@ -200,6 +201,7 @@ EndMode3D();
     // DrawText("POSITION TEXTURE", 10, height - 30, 20, DARKGREEN);
   } break;
   case DEFERRED_NORMAL: {
+		EndTextureMode();
     Texture2D texture = (Texture2D){
         .id = state->gbuffer.normalTexture,
         .width = state->width,
@@ -210,6 +212,7 @@ EndMode3D();
     // DrawText("NORMAL TEXTURE", 10, height - 30, 20, DARKGREEN);
   } break;
   case DEFERRED_ALBEDO: {
+		EndTextureMode();
     Texture2D texture = (Texture2D){
         .id = state->gbuffer.albedoSpecTexture,
         .width = state->width,
@@ -226,7 +229,4 @@ EndMode3D();
 	rlViewport(0, 0, w, h);
 	rlSetFramebufferWidth(w);
 	rlSetFramebufferHeight(h);
-	// This begins-ends texture mode should resize draw contexts
-	// donno work
-	EndTextureMode();
 }

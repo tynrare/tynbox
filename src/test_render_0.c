@@ -1,5 +1,6 @@
 #include "include/test_render_0.h"
 #include "include/deferred_render.h"
+#include <raylib.h>
 #include <raymath.h>
 #include <stdlib.h>
 
@@ -15,21 +16,25 @@ void TestRender0Dispose(TestRender0State *state);
 STAGEFLAG TestRender0Step(TestRender0State *state, STAGEFLAG flags);
 void TestRender0Draw(TestRender0State *state);
 
+const char *MODEL_FILE_NAME = "res/test/d240326.obj";
+
 #define TEST_DEFERRED 1
 
 void _TestRender0Init(TestRender0State *state) {
   // Define the camera to look into our 3d world
   Camera camera = {0};
-  camera.position = (Vector3){4.0f, 4.0f, 4.0f}; // Camera position
-  camera.target = (Vector3){0.0f, 1.0f, -1.0f};  // Camera looking at point
+  camera.position = (Vector3){8.0f, 8.0f, 8.0f}; // Camera position
+  camera.target = (Vector3){0.0f, 0.0f, -0.0f};  // Camera looking at point
   camera.up =
       (Vector3){0.0f, 1.0f, 0.0f}; // Camera up vector (rotation towards target)
   camera.fovy = 45.0f;             // Camera field-of-view Y
   camera.projection = CAMERA_PERSPECTIVE; // Camera projection type
 
-  state->model = LoadModel("res/test/d231117.obj");       // Load OBJ model
-  state->texture = LoadTexture("res/test/palette_0.png"); // Load model texture
+  state->model = LoadModel(MODEL_FILE_NAME); // Load OBJ model
+  state->model_mod_time = GetFileModTime(MODEL_FILE_NAME);
+  state->texture = LoadTexture("res/test/palette_1.png"); // Load model texture
   state->tex_target = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+	state->deferred_render_mode = DEFERRED_SHADING;
   // Load shader for model
   // NOTE: Defining 0 (NULL) for vertex shader forces usage of internal default
   // vertex shader
@@ -69,8 +74,26 @@ void TestRender0Dispose(TestRender0State *state) {
   free(state);
 }
 
+void HotReloadModel(TestRender0State *state) {
+  long timestamp = GetFileModTime(MODEL_FILE_NAME);
+
+  // Check if shader file has been modified
+  if (timestamp != state->model_mod_time) {
+		Model model = LoadModel(MODEL_FILE_NAME);
+		UnloadModel(state->model);
+		state->model = model;
+		state->model_mod_time = timestamp;
+		state->model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = state->texture;
+		state->model.materials[0].shader = state->deferred_render.gbufferShader;
+  }
+}
+
 STAGEFLAG TestRender0Step(TestRender0State *state, STAGEFLAG flags) {
-  UpdateCamera(&state->camera, CAMERA_FIRST_PERSON);
+  HotReloadModel(state);
+  UpdateCamera(&state->camera, CAMERA_ORBITAL);
+	if (IsKeyPressed(KEY_R)) {
+		state->deferred_render_mode = (state->deferred_render_mode + 1) % __DEFERRED_RENDER_MODES_COUNT;
+	}
   return flags;
 }
 
@@ -81,10 +104,10 @@ void TestRender0Draw(TestRender0State *state) {
   BeginDrawDeferredRender(&state->deferred_render, state->camera);
   DrawModel(state->model, position, 0.1f, WHITE);
   EndDrawDeferredRender(&state->deferred_render, state->camera,
-                        GetScreenWidth(), GetScreenHeight(), DEFERRED_SHADING);
-  BeginMode3D(state->camera);                     // Begin 3d mode drawing
-  DrawGrid(10, 1.0f);                             // Draw a grid
-	EndMode3D();
+                        GetScreenWidth(), GetScreenHeight(), state->deferred_render_mode);
+  BeginMode3D(state->camera); // Begin 3d mode drawing
+  DrawGrid(10, 1.0f);         // Draw a grid
+  EndMode3D();
 #else
   BeginTextureMode(state->tex_target); // Enable drawing to texture
   ClearBackground(RAYWHITE);           // Clear texture background

@@ -7,11 +7,13 @@
 
 typedef struct {
 	Model model;
+	long model_mod_time;
 	Texture2D texture;
 	Camera camera;
 	Shader shader;
 	RenderTexture2D tex_target;
 	DeferredRenderState deferred_render;
+	DeferredRenderMode deferred_render_mode;
 } TestRender0State;
 
 TestRender0State* TestRender0Init(TynStage* stage);
