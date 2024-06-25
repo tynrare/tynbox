@@ -1,6 +1,7 @@
 # tynbox
 
-[prev version](https://github.com/tynrare/tynbox/tree/d240509), [demo](https://tynbox-d1.netlify.app/)
+- [prev version](https://github.com/tynrare/tynbox/tree/d240509) - [prev version demo](https://tynbox-d1.netlify.app/)
+- [current version demo](https://tynbox.netlify.app/)
 
 # build
 
