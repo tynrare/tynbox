@@ -10,7 +10,7 @@
 #include <emscripten/emscripten.h>
 #endif
 
-#include "./test_barycentric.h"
+#include "./tests.h"
 
 bool active = false;
 
@@ -37,6 +37,7 @@ static void draw() {
 			DrawText("tynbox: barycentric", 16, 16, 20, WHITE);
 			break;
 		case BOXMODE_TEST_LERP:
+			_draw_test_lerp();
 			DrawText("tynbox: lerp", 16, 16, 20, WHITE);
 			break;
 		default:

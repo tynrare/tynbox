@@ -1,4 +1,4 @@
-#include "./test_barycentric.h"
+#include "./tests.h"
 
 Vector3 get_barecentric_coordinates(Vector3 v0, Vector3 v1, Vector3 v2,
                                            Vector3 p) {
