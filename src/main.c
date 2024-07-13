@@ -26,7 +26,7 @@ typedef enum BOXMODES {
 	__BOXMODES_COUNT__
 } BOXMODE;
 
-static BOXMODE boxmode = BOXMODE_TEST_BARYCENTRIC;
+static BOXMODE boxmode = BOXMODE_TEST_LERP;
 
 static void draw() {
   ClearBackground(BLACK);
