@@ -23,10 +23,11 @@ static int viewport_h = VIEWPORT_H;
 typedef enum BOXMODES {
 	BOXMODE_TEST_BARYCENTRIC = 0,
 	BOXMODE_TEST_LERP = 1,
+	BOXMODE_TEST_ORIGAMI = 2,
 	__BOXMODES_COUNT__
 } BOXMODE;
 
-static BOXMODE boxmode = BOXMODE_TEST_LERP;
+static BOXMODE boxmode = BOXMODE_TEST_ORIGAMI;
 
 static void draw() {
   ClearBackground(BLACK);
@@ -39,6 +40,10 @@ static void draw() {
 		case BOXMODE_TEST_LERP:
 			_draw_test_lerp();
 			DrawText("tynbox: lerp", 16, 16, 20, WHITE);
+			break;
+		case BOXMODE_TEST_ORIGAMI:
+			_draw_test_origami();
+			DrawText("tynbox: origami", 16, 16, 20, WHITE);
 			break;
 		default:
 			DrawText("tynbox: ...", 16, 16, 20, WHITE);

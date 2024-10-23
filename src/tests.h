@@ -13,3 +13,5 @@ void _draw_test_barycentric();
 // --- lerp
 
 void _draw_test_lerp();
+
+void _draw_test_origami();
